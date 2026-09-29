@@ -6,35 +6,50 @@ import { z } from "zod";
  *
  * NOTE: Next.js inlines NEXT_PUBLIC_* at build time only when referenced
  * literally (process.env.NEXT_PUBLIC_X), so each key is read explicitly.
+ *
+ * Every value is optional. An invalid value (e.g. a placeholder pasted into
+ * the hosting dashboard) is dropped with a warning instead of crashing the
+ * whole site; the feature that needs it then reports "not configured".
  */
-const publicSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.url().optional(),
-  NEXT_PUBLIC_SUPABASE_URL: z.url().optional(),
+const publicShape = {
+  NEXT_PUBLIC_SITE_URL: z.url(),
+  NEXT_PUBLIC_SUPABASE_URL: z.url(),
   // Supabase's newer "publishable" key, or the legacy anon key. Both are
   // designed to be public; RLS is what protects data.
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(20).optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20).optional(),
-  NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: z.string().optional(),
-});
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
+  NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: z.string().min(1),
+} as const;
 
-const rawPublic = {
-  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || undefined,
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || undefined,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || undefined,
-  NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY || undefined,
+type PublicEnv = { [K in keyof typeof publicShape]?: z.infer<(typeof publicShape)[K]> };
+
+const rawPublic: Record<keyof typeof publicShape, string | undefined> = {
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY,
 };
 
-const parsed = publicSchema.safeParse(rawPublic);
-if (!parsed.success) {
-  // Fail loudly in every environment: a malformed URL/key is a deploy error.
-  throw new Error(
-    `Invalid public environment variables:\n${z.prettifyError(parsed.error)}`,
-  );
+/** Validates each key independently; blank or invalid values become undefined. */
+export function parseEnvLenient<S extends Record<string, z.ZodType>>(
+  shape: S,
+  raw: Record<string, string | undefined>,
+  label: string,
+): { [K in keyof S]?: z.infer<S[K]> } {
+  const out: Record<string, unknown> = {};
+  for (const [key, schema] of Object.entries(shape)) {
+    const value = raw[key]?.trim();
+    if (!value) continue;
+    const result = schema.safeParse(value);
+    if (result.success) out[key] = result.data;
+    // Never print the value itself — it may be a secret.
+    else console.warn(`[env] Ignoring invalid ${label} variable ${key}: ${result.error.issues[0]?.message ?? "invalid"}`);
+  }
+  return out as { [K in keyof S]?: z.infer<S[K]> };
 }
 
-export const publicEnv = parsed.data;
+export const publicEnv: PublicEnv = parseEnvLenient(publicShape, rawPublic, "public");
 
 export interface SupabasePublicConfig {
   url: string;
