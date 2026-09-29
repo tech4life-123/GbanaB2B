@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   GbanaB2B design tokens
+   Trade Navy #0F2027 · Electric Amber #FF9900 · Gold #F59E0B
+   Escrow Emerald #10B981 · Slate #F8FAFC
+
+   Colour semantics (keep them strict — users learn them):
+   - signal (amber) = the one primary action on a screen
+   - escrow (emerald) = money protected / verified / confirmed. Nothing else.
+   - gold = earned trust badges and highlights
+   - trade (navy) = structure, headers, text
+   ========================================================================== */
+
+@theme {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-trade-50: #eef3f5;
+  --color-trade-100: #d5e1e6;
+  --color-trade-200: #aac2cc;
+  --color-trade-300: #7a9eac;
+  --color-trade-400: #4f7887;
+  --color-trade-500: #345c6a;
+  --color-trade-600: #254754;
+  --color-trade-700: #1b3641;
+  --color-trade-800: #142a33;
+  --color-trade-900: #0f2027;
+  --color-trade-950: #081317;
+
+  --color-signal-50: #fff6e6;
+  --color-signal-100: #ffe8bf;
+  --color-signal-200: #ffd08a;
+  --color-signal-300: #ffb84d;
+  --color-signal-400: #ffa81f;
+  --color-signal-500: #ff9900;
+  --color-signal-600: #db7f00;
+  --color-signal-700: #a85f00;
+  --color-signal-800: #7a4500;
+
+  --color-gold-50: #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-300: #fcd34d;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
+
+  --color-escrow-50: #ecfdf5;
+  --color-escrow-100: #d1fae5;
+  --color-escrow-200: #a7f3d0;
+  --color-escrow-400: #34d399;
+  --color-escrow-500: #10b981;
+  --color-escrow-600: #059669;
+  --color-escrow-700: #047857;
+  --color-escrow-800: #065f46;
+
+  --color-canvas: #f8fafc;
+  --color-ink: #0f2027;
+  --color-muted: #52616b;
+  --color-line: #dfe6ea;
+  --color-line-strong: #c3ced5;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-card: 0 1px 0 rgb(15 32 39 / 0.04), 0 1px 3px rgb(15 32 39 / 0.06);
+  --shadow-raised: 0 1px 0 rgb(15 32 39 / 0.04), 0 8px 24px -8px rgb(15 32 39 / 0.18);
+
+  --animate-fade-in: fade-in 180ms ease-out both;
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scrollbar-gutter: stable;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-signal-200);
+    color: var(--color-trade-900);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-signal-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* Numbers that people compare (prices, weights, IDs) line up. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Manifest grid — the faint ruled background used on navy surfaces. */
+  .bg-manifest {
+    background-color: var(--color-trade-900);
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+  }
+  /* Small uppercase label used like the field names on a waybill. */
+  .label-caps {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  /* Dashed trade-path rule. */
+  .rule-dashed {
+    background-image: linear-gradient(90deg, currentColor 50%, transparent 0);
+    background-size: 8px 2px;
+    background-repeat: repeat-x;
+    height: 2px;
+  }
+}
