@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-09-29 (Supabase linked)_
+_Last updated: 2026-09-29 (Supabase linked, deployed to Vercel)_
 
 ## Current phase
 
@@ -14,6 +14,7 @@ _Last updated: 2026-09-29 (Supabase linked)_
 | `npm run typecheck` | ✅ strict, 0 errors |
 | `npm test` | ✅ 44 unit tests (phone normalisation, money, state machines, open-redirect guard, log redaction, protected paths, roles, schemas, nav config) |
 | `npm run test:db` | ✅ 5 migrations apply cleanly on PostgreSQL 16; 50+ RLS/workflow assertions pass |
+| Live site | ✅ https://gbana-b2-b.vercel.app — Vercel project `gbana-b2-b`, auto-deploys from `main`; `/api/health` reports Supabase configured; sign-in form live |
 | Live Supabase | ✅ project `vdncwiptaheshyomgmsd` (eu-west-1): all 5 migrations applied; rolled-back smoke test confirmed profile trigger, onboarding, and that self-admin, direct role inserts, status edits, audit writes and setting changes are blocked |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
 | Visual check | ✅ landing, sign-in, design system, offline, 404 and the workspace shell reviewed at 1366px and 390px |
@@ -44,7 +45,7 @@ _Last updated: 2026-09-29 (Supabase linked)_
 ## Known limitations
 
 - **Supabase linked, SMS not yet verified.** Database is live. Phone sign-in needs Supabase Auth → Phone enabled with an SMS provider; end-to-end SMS sign-in has not been tested yet.
-- **Not deployed.** No Vercel project exists yet; env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) must be added when it is created.
+- Vercel env holds placeholders for integrations not built yet (MTN, Orange, web push, secret keys). The app ignores invalid/blank optional values with a log warning; fill them in only when each integration lands.
 - Supabase advisor still lists the authenticated-callable SECURITY DEFINER functions (`request_role`, `grant_role`, …). This is intentional: each validates the caller inside the function and is covered by tests.
 - `src/lib/db/types.ts` is hand-written; regenerate with the Supabase CLI once linked.
 - Admin role grant/revoke exists in the database but has no UI yet (planned alongside Phase 4 verification tooling).
