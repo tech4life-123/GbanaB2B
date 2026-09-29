@@ -33,6 +33,12 @@ Security is a product requirement. This document is the threat model and the con
 | Delivery code guessing | Hashed, expiring, single-use, attempt-limited codes | 🔜 Phase 6 |
 | Document exposure | Private storage buckets; signed URLs for admins only | 🔜 Phase 4 |
 
+## Temporary access (pre-launch)
+
+While no SMS provider is configured, `DEMO_ACCESS_ENABLED=true` (Vercel env) shows an email + password form on `/sign-in` for pre-provisioned accounts. Sign-up is not possible through it. Accounts were created directly in `auth.users` via SQL and recorded in the audit log (`account.temporary_access_provisioned`). The admin overview shows a warning banner while it is on.
+
+**To remove:** set `DEMO_ACCESS_ENABLED=false` (or delete it) in Vercel and redeploy, then delete the `*@gbanab2b.test` users in Supabase → Authentication → Users.
+
 ## Operational procedures
 
 **First admin:** after the person signs in once, run `select public.bootstrap_admin('+231…');` in the Supabase SQL editor. This is recorded in the audit log. The function is not executable by `anon` or `authenticated`.

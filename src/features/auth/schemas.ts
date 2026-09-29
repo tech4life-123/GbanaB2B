@@ -39,3 +39,9 @@ export const onboardingSchema = z.object({
 export const addRoleSchema = z.object({
   role: z.enum(SELF_ASSIGNABLE_ROLES),
 });
+
+export const passwordSignInSchema = z.object({
+  email: z.string().trim().toLowerCase().max(254).pipe(z.email("Enter a valid email address.")),
+  password: z.string().min(8, "Enter your password.").max(200),
+  next: z.string().optional(),
+});

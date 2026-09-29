@@ -44,6 +44,8 @@ _Last updated: 2026-09-29 (Supabase linked, deployed to Vercel)_
 
 ## Known limitations
 
+- **Temporary access is ON.** SMS isn't configured, so `/sign-in` also offers email + password for two pre-provisioned accounts (`owner@gbanab2b.test` with all four roles; `newuser@gbanab2b.test` with none, for previewing onboarding). Turn off with `DEMO_ACCESS_ENABLED=false` once phone sign-in works — see SECURITY.md.
+
 - **Supabase linked, SMS not yet verified.** Database is live. Phone sign-in needs Supabase Auth → Phone enabled with an SMS provider; end-to-end SMS sign-in has not been tested yet.
 - Vercel env holds placeholders for integrations not built yet (MTN, Orange, web push, secret keys). The app ignores invalid/blank optional values with a log warning; fill them in only when each integration lands.
 - Supabase advisor still lists the authenticated-callable SECURITY DEFINER functions (`request_role`, `grant_role`, …). This is intentional: each validates the caller inside the function and is covered by tests.

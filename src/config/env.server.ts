@@ -27,10 +27,19 @@ const serverShape = {
   WEB_PUSH_SUBJECT: z.string(),
 
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]),
+
+  // TEMPORARY: enables email + password sign-in for pre-provisioned accounts
+  // while no SMS provider is configured. Remove once phone OTP is live.
+  DEMO_ACCESS_ENABLED: z.enum(["true", "false"]),
 } as const;
 
 export const serverEnv = parseEnvLenient(serverShape, process.env, "server");
 
 export function getSupabaseSecretKey(): string | null {
   return serverEnv.SUPABASE_SECRET_KEY ?? serverEnv.SUPABASE_SERVICE_ROLE_KEY ?? null;
+}
+
+/** True only when DEMO_ACCESS_ENABLED is exactly "true". */
+export function isTemporaryAccessEnabled(): boolean {
+  return serverEnv.DEMO_ACCESS_ENABLED === "true";
 }

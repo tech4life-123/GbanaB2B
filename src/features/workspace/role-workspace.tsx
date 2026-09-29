@@ -14,7 +14,7 @@ export async function RoleWorkspace({ role, children }: { role: Role; children: 
       role={role}
       viewer={{
         name: viewer.profile?.display_name || viewer.profile?.full_name || "Your account",
-        phone: viewer.phone ? formatPhoneForDisplay(viewer.phone) : "",
+        phone: viewer.phone ? formatPhoneForDisplay(viewer.phone) : (viewer.email ?? ""),
         roles: viewer.roles,
       }}
     >

@@ -7,7 +7,8 @@ import { StatusDot } from "@/components/ui/badge";
 import { getPlatformOverview, listRecentAudit, listSettings } from "@/features/admin/queries";
 import { formatSettingValue, settingLabel } from "@/features/admin/settings-meta";
 import { AuditList } from "@/features/admin/components/audit-list";
-import { getSupabaseSecretKey } from "@/config/env.server";
+import { getSupabaseSecretKey, isTemporaryAccessEnabled } from "@/config/env.server";
+import { Alert } from "@/components/ui/alert";
 import { ROLE_META, ROLES } from "@/lib/auth/roles";
 
 export const metadata: Metadata = { title: "Admin" };
@@ -27,6 +28,13 @@ export default async function AdminOverviewPage() {
   return (
     <div className="animate-fade-in space-y-8">
       <PageHeader eyebrow="Operations" title="Platform overview" description="Live figures from the database. Everything on this page is visible only to administrators." />
+
+      {isTemporaryAccessEnabled() && (
+        <Alert tone="warning" title="Temporary password sign-in is ON">
+          Pre-provisioned accounts can sign in with email and password while SMS codes are unavailable. Set{" "}
+          <code className="font-mono text-xs">DEMO_ACCESS_ENABLED=false</code> in Vercel (and redeploy) once phone sign-in works.
+        </Alert>
+      )}
 
       <section aria-label="Key figures" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Accounts" value={nf.format(overview.totalUsers)} hint={overview.inactiveUsers ? `${overview.inactiveUsers} suspended or closed` : "All active"} />

@@ -7,6 +7,7 @@ const ACTION_LABELS: Record<string, { label: string; tone: Tone }> = {
   "role.revoked": { label: "Role revoked", tone: "danger" },
   "role.bootstrap_admin": { label: "First admin created", tone: "gold" },
   "platform_setting.updated": { label: "Setting changed", tone: "signal" },
+  "account.temporary_access_provisioned": { label: "Temporary access account", tone: "signal" },
 };
 
 const dateFmt = new Intl.DateTimeFormat("en-GB", {
@@ -20,6 +21,7 @@ const dateFmt = new Intl.DateTimeFormat("en-GB", {
 function describe(entry: AuditLogRow): string {
   const m = (entry.metadata ?? {}) as Record<string, unknown>;
   if (entry.action === "platform_setting.updated") return `${entry.entity_id}: ${JSON.stringify(m.old)} → ${JSON.stringify(m.new)}`;
+  if (typeof m.email === "string") return `${m.email}${Array.isArray(m.roles) && m.roles.length ? ` · ${m.roles.join(", ")}` : ""}`;
   if (typeof m.role === "string") return `${m.role} · user ${entry.entity_id?.slice(0, 8)}`;
   return `${entry.entity_type}${entry.entity_id ? ` · ${entry.entity_id.slice(0, 12)}` : ""}`;
 }

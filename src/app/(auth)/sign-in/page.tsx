@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { isSupabaseConfigured } from "@/config/env";
+import { isTemporaryAccessEnabled } from "@/config/env.server";
+import { PasswordSignIn } from "@/features/auth/components/password-sign-in";
 import { PhoneSignIn } from "@/features/auth/components/phone-sign-in";
 import { getViewer } from "@/lib/auth/session";
 import { isSelfAssignableRole, ROLE_META } from "@/lib/auth/roles";
@@ -26,6 +28,7 @@ export default async function SignInPage({
   }
 
   const configured = isSupabaseConfigured();
+  const temporaryAccess = configured && isTemporaryAccessEnabled();
 
   return (
     <div className="animate-fade-in">
@@ -46,7 +49,28 @@ export default async function SignInPage({
         </Alert>
       )}
 
-      <div className="mt-8 rounded-xl border border-line bg-white p-5 shadow-card sm:p-6">
+      {temporaryAccess && (
+        <section
+          aria-labelledby="temp-access-title"
+          className="mt-8 overflow-hidden rounded-xl border border-signal-300 bg-white shadow-card"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-signal-200 bg-signal-50 px-5 py-3 sm:px-6">
+            <h2 id="temp-access-title" className="text-sm font-bold text-trade-900">
+              Temporary access
+            </h2>
+            <span className="label-caps text-signal-800">Pre-launch</span>
+          </div>
+          <div className="p-5 sm:p-6">
+            <p className="mb-4 text-sm text-muted">
+              SMS codes aren&apos;t switched on yet. Team members can sign in with the email and password they were given.
+            </p>
+            <PasswordSignIn next={next || undefined} />
+          </div>
+        </section>
+      )}
+
+      <div className={temporaryAccess ? "mt-6 rounded-xl border border-line bg-white p-5 shadow-card sm:p-6" : "mt-8 rounded-xl border border-line bg-white p-5 shadow-card sm:p-6"}>
+        {temporaryAccess && <p className="label-caps mb-4 text-muted">Phone sign-in · coming soon</p>}
         <PhoneSignIn configured={configured} next={next || undefined} role={role} />
       </div>
 

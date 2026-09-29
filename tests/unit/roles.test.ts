@@ -43,3 +43,13 @@ describe("workspace navigation", () => {
     expect(CURRENT_PHASE).toBeGreaterThanOrEqual(1);
   });
 });
+
+import { passwordSignInSchema } from "@/features/auth/schemas";
+
+describe("password sign-in schema", () => {
+  it("normalises email and requires a password", () => {
+    expect(passwordSignInSchema.parse({ email: "  Owner@Example.COM ", password: "longenough" }).email).toBe("owner@example.com");
+    expect(passwordSignInSchema.safeParse({ email: "nope", password: "longenough" }).success).toBe(false);
+    expect(passwordSignInSchema.safeParse({ email: "a@b.co", password: "short" }).success).toBe(false);
+  });
+});

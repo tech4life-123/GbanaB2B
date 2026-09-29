@@ -9,6 +9,8 @@ import { logger } from "@/lib/logging/logger";
 export interface Viewer {
   id: string;
   phone: string | null;
+  /** Set for accounts that sign in with email (temporary access accounts). */
+  email: string | null;
   profile: ProfileRow | null;
   /** Active roles, read from the database — never from client input. */
   roles: Role[];
@@ -42,6 +44,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   return {
     id: user.id,
     phone: user.phone ? `+${user.phone.replace(/^\+/, "")}` : null,
+    email: user.email ?? null,
     profile,
     roles,
     homeRole: resolveHomeRole(roles, profile?.default_role),
