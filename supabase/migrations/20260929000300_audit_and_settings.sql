@@ -104,6 +104,8 @@ alter table public.platform_settings enable row level security;
 revoke all on table public.audit_logs, public.platform_settings from anon, authenticated;
 grant select on table public.audit_logs to authenticated;          -- filtered to admins by RLS
 grant select on table public.platform_settings to authenticated;   -- non-sensitive rows only, by RLS
+-- Supabase grants service_role ALL on new tables by default; strip mutation rights.
+revoke update, delete, truncate on table public.audit_logs from service_role;
 grant select, insert on table public.audit_logs to service_role;
 grant all on table public.platform_settings to service_role;
 

@@ -1,6 +1,6 @@
 # Project status
 
-_Last updated: 2026-09-29_
+_Last updated: 2026-09-29 (Supabase linked)_
 
 ## Current phase
 
@@ -13,7 +13,8 @@ _Last updated: 2026-09-29_
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors |
 | `npm test` | ✅ 44 unit tests (phone normalisation, money, state machines, open-redirect guard, log redaction, protected paths, roles, schemas, nav config) |
-| `npm run test:db` | ✅ 4 migrations apply cleanly on PostgreSQL 16; 50 RLS/workflow assertions pass |
+| `npm run test:db` | ✅ 5 migrations apply cleanly on PostgreSQL 16; 50+ RLS/workflow assertions pass |
+| Live Supabase | ✅ project `vdncwiptaheshyomgmsd` (eu-west-1): all 5 migrations applied; rolled-back smoke test confirmed profile trigger, onboarding, and that self-admin, direct role inserts, status edits, audit writes and setting changes are blocked |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
 | Visual check | ✅ landing, sign-in, design system, offline, 404 and the workspace shell reviewed at 1366px and 390px |
 
@@ -36,13 +37,15 @@ _Last updated: 2026-09-29_
 - `20260929000200_identity_and_roles.sql` — `profiles`, `user_roles`, `has_role`/`is_admin`, auth.users triggers, RLS, column grants
 - `20260929000300_audit_and_settings.sql` — append-only `audit_logs`, `write_audit_log`, `platform_settings` (+ seeded rules: 2.5% fee, OTP, bids, cancellation)
 - `20260929000400_role_and_settings_workflows.sql` — `request_role`, `set_default_role`, `complete_onboarding`, `grant_role`, `revoke_role`, `update_platform_setting`, `bootstrap_admin`
+- `20260929000500_advisor_hardening.sql` — FK indexes, single SELECT policy per table, closes client access to Supabase's `rls_auto_enable()`
 
 **Documentation:** README, ARCHITECTURE, DATABASE, SECURITY, ROADMAP, this file, `docs/` (database conventions & domain model, design system, payments, order/escrow workflow, API, 6 ADRs). CI workflow in `.github/workflows/ci.yml`.
 
 ## Known limitations
 
-- **No Supabase project linked yet.** Sign-in shows a "not connected" notice until env vars are set; migrations have been verified against PostgreSQL with a Supabase stub, not yet against a live project.
-- SMS delivery depends on an SMS provider configured in Supabase Auth (not in code).
+- **Supabase linked, SMS not yet verified.** Database is live. Phone sign-in needs Supabase Auth → Phone enabled with an SMS provider; end-to-end SMS sign-in has not been tested yet.
+- **Not deployed.** No Vercel project exists yet; env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) must be added when it is created.
+- Supabase advisor still lists the authenticated-callable SECURITY DEFINER functions (`request_role`, `grant_role`, …). This is intentional: each validates the caller inside the function and is covered by tests.
 - `src/lib/db/types.ts` is hand-written; regenerate with the Supabase CLI once linked.
 - Admin role grant/revoke exists in the database but has no UI yet (planned alongside Phase 4 verification tooling).
 - Push notification subscription storage and sending are not built (Phase 3+ with notifications).
