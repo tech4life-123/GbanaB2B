@@ -8,6 +8,10 @@ const ACTION_LABELS: Record<string, { label: string; tone: Tone }> = {
   "role.bootstrap_admin": { label: "First admin created", tone: "gold" },
   "platform_setting.updated": { label: "Setting changed", tone: "signal" },
   "account.temporary_access_provisioned": { label: "Temporary access account", tone: "signal" },
+  "business.created": { label: "Business created", tone: "neutral" },
+  "business.reviewed": { label: "Business reviewed", tone: "info" },
+  "category.created": { label: "Category created", tone: "neutral" },
+  "category.updated": { label: "Category updated", tone: "neutral" },
 };
 
 const dateFmt = new Intl.DateTimeFormat("en-GB", {
@@ -21,6 +25,10 @@ const dateFmt = new Intl.DateTimeFormat("en-GB", {
 function describe(entry: AuditLogRow): string {
   const m = (entry.metadata ?? {}) as Record<string, unknown>;
   if (entry.action === "platform_setting.updated") return `${entry.entity_id}: ${JSON.stringify(m.old)} → ${JSON.stringify(m.new)}`;
+  if (entry.action === "business.reviewed")
+    return `${String(m.old_verification)} → ${String(m.new_verification)}, ${String(m.old_status)} → ${String(m.new_status)}`;
+  if (typeof m.trading_name === "string") return m.trading_name;
+  if (entry.entity_type === "product_category" && typeof m.name === "string") return `${m.name}${m.is_active === false ? " (hidden)" : ""}`;
   if (typeof m.email === "string") return `${m.email}${Array.isArray(m.roles) && m.roles.length ? ` · ${m.roles.join(", ")}` : ""}`;
   if (typeof m.role === "string") return `${m.role} · user ${entry.entity_id?.slice(0, 8)}`;
   return `${entry.entity_type}${entry.entity_id ? ` · ${entry.entity_id.slice(0, 12)}` : ""}`;

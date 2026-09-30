@@ -1,69 +1,72 @@
 # Project status
 
-_Last updated: 2026-09-29 (Supabase linked, deployed to Vercel)_
+_Last updated: 2026-09-30 (Phase 2 complete)_
 
 ## Current phase
 
-**Phase 1 — Foundation: complete.** Stopped at the Phase 1 boundary as specified. Next: **Phase 2 — Marketplace.**
+**Phase 2 — Marketplace: complete.** Stopped at the Phase 2 boundary. Next: **Phase 3 — B2B commerce** (addresses, cart, orders, price snapshots, order state machine, proforma invoices).
 
 ## Verification (all passing)
 
 | Check | Result |
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
-| `npm run typecheck` | ✅ strict, 0 errors |
-| `npm test` | ✅ 44 unit tests (phone normalisation, money, state machines, open-redirect guard, log redaction, protected paths, roles, schemas, nav config) |
-| `npm run test:db` | ✅ 5 migrations apply cleanly on PostgreSQL 16; 50+ RLS/workflow assertions pass |
-| Live site | ✅ https://gbana-b2-b.vercel.app — Vercel project `gbana-b2-b`, auto-deploys from `main`; `/api/health` reports Supabase configured; sign-in form live |
-| Live Supabase | ✅ project `vdncwiptaheshyomgmsd` (eu-west-1): all 5 migrations applied; rolled-back smoke test confirmed profile trigger, onboarding, and that self-admin, direct role inserts, status edits, audit writes and setting changes are blocked |
+| `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
+| `npm test` | ✅ 64 unit tests — Phase 1 suite + price-tier validation/lookup, logistics units, image paths, marketplace URL parsing (hostile input), env parsing |
+| `npm run test:db` | ✅ 8 migrations apply cleanly on PostgreSQL 16; 106 RLS/workflow assertions (50 Phase 1 + 56 Phase 2) |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
-| Visual check | ✅ landing, sign-in, design system, offline, 404 and the workspace shell reviewed at 1366px and 390px |
+| Live Supabase | ✅ project `vdncwiptaheshyomgmsd`: all 8 migrations applied; security advisor shows only the documented intentional warnings + leaked-password protection (dashboard setting) |
+| Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
+| Visual check | ✅ marketplace grid + filters, product page estimator, and listing editor reviewed at 1366px and 390px (sample data harness); fixes applied: card footer truncation, select chevrons, equal card heights, one amber action per screen |
 
 ## Completed
 
-**Application**
-- Next.js 16 App Router + TypeScript strict + Tailwind v4, Vercel-ready; security headers; `proxy.ts` session refresh
-- Brand: SVG shield-G logo (ribbon woven through, emerald escrow node), PWA icons generated from it
-- Design system: tokens, 15+ components, `TradePath`/`StageTracker` signature motif, living reference at `/design-system`
-- Public site: landing page (hero with illustrative waybill, trade path, audiences, carrier classes, escrow/trust, Liberia section, CTA), header with no-JS mobile menu, footer
-- Auth: phone OTP sign-in (Liberian number normalisation, resend cooldown, rate-limit handling, open-redirect guard), onboarding (name + first role), add-role flow, sign-out, suspended-account page
-- Workspaces for buyer / seller / carrier / admin: desktop sidebar + phone bottom tab bar, role switcher, per-role overviews with real setup checklists, honest "opens in phase N" pages for future sections, loading skeletons
-- Admin foundation (real data via RLS): overview (accounts & role counts, recent audit, commission, integration status), users & roles table with pagination, platform settings with audited edit dialog, audit log
-- PWA: manifest, installable icons, conservative service worker (static assets only, offline fallback, push handlers), online/offline banner
-- Error boundary, not-found page, health endpoint, structured logger with PII redaction
-- Interfaces only: `PaymentProvider` (MTN MoMo, Orange Money), notification channel adapters
+### Phase 2 — Marketplace
+**Public (no sign-in needed)**
+- `/marketplace`: full-text search, category chips, filters (category, seller county, unit price range + currency, max MOQ, in stock), sort (newest, price ↑/↓, lowest MOQ), pagination; GET-form filters work without JavaScript and every result is a shareable URL
+- `/products/[slug]`: photo gallery (scroll-snap, lazy), quantity price-tier table with savings, live order estimator (tier, subtotal, cargo weight, carrier class), shipping details, specifications, seller card with verification, related listings, WhatsApp share, schema.org Product data; "Order with escrow" shown disabled until Phase 3
+- `/sellers/[slug]`: seller profile and live listings
+- Session-aware header ("My workspace" when signed in)
 
-**Database** (`supabase/migrations/`)
-- `20260929000100_foundation.sql` — enums, `set_updated_at`, `prevent_mutation`, revoke-by-default privileges
-- `20260929000200_identity_and_roles.sql` — `profiles`, `user_roles`, `has_role`/`is_admin`, auth.users triggers, RLS, column grants
-- `20260929000300_audit_and_settings.sql` — append-only `audit_logs`, `write_audit_log`, `platform_settings` (+ seeded rules: 2.5% fee, OTP, bids, cancellation)
-- `20260929000400_role_and_settings_workflows.sql` — `request_role`, `set_default_role`, `complete_onboarding`, `grant_role`, `revoke_role`, `update_platform_setting`, `bootstrap_admin`
-- `20260929000500_advisor_hardening.sql` — FK indexes, single SELECT policy per table, closes client access to Supabase's `rls_auto_enable()`
+**Seller workspace**
+- Business profile: create (seller role required, one owned business per person — ADR 0007) and edit; verification status and admin notes
+- Listings list with status filters and counts
+- New listing → editor with sections: prices & stock (MOQ, contiguous tier builder with live validation and buyer preview), photos (browser compression to WebP ≤1600px, direct upload to Storage, cover selection, delete, max 8), shipping details (weight, dimensions, fragile, stacking, handling), product details, specifications
+- Publish checklist (weight + tiers from MOQ required; photo + description recommended); publish / pause / archive; delete drafts
+- Overview with live/draft/paused/archived counts and setup checklist
 
-**Documentation:** README, ARCHITECTURE, DATABASE, SECURITY, ROADMAP, this file, `docs/` (database conventions & domain model, design system, payments, order/escrow workflow, API, 6 ADRs). CI workflow in `.github/workflows/ci.yml`.
+**Admin**
+- Businesses: filter by verification/suspension; review dialog sets verification + status with note (rejection requires reason; suspension pauses listings); audited
+- Categories: create/edit/hide, audited; 20 Liberia-relevant categories seeded
+
+**Database** — `20260930000100_marketplace.sql`, `…0200_product_image_storage.sql`, `…0300_products_slug_default.sql`. See [docs/database/marketplace.md](docs/database/marketplace.md).
+
+### Phase 1 — Foundation
+App shell, design system (`/design-system`), PWA, env architecture, phone OTP auth + temporary password access, roles, workspaces, admin (users, settings, audit), migrations 0001–0005, docs, CI. Details in git history and ARCHITECTURE.md.
 
 ## Known limitations
 
-- **Temporary access is ON.** SMS isn't configured, so `/sign-in` also offers email + password for two pre-provisioned accounts (`owner@gbanab2b.test` with all four roles; `newuser@gbanab2b.test` with none, for previewing onboarding). Turn off with `DEMO_ACCESS_ENABLED=false` once phone sign-in works — see SECURITY.md.
-
-- **Supabase linked, SMS not yet verified.** Database is live. Phone sign-in needs Supabase Auth → Phone enabled with an SMS provider; end-to-end SMS sign-in has not been tested yet.
-- Vercel env holds placeholders for integrations not built yet (MTN, Orange, web push, secret keys). The app ignores invalid/blank optional values with a log warning; fill them in only when each integration lands.
-- Supabase advisor still lists the authenticated-callable SECURITY DEFINER functions (`request_role`, `grant_role`, …). This is intentional: each validates the caller inside the function and is covered by tests.
-- `src/lib/db/types.ts` is hand-written; regenerate with the Supabase CLI once linked.
-- Admin role grant/revoke exists in the database but has no UI yet (planned alongside Phase 4 verification tooling).
-- Push notification subscription storage and sending are not built (Phase 3+ with notifications).
-- No dark mode (deliberate for Phase 1; tokens make it addable).
-- Automated accessibility audit (axe) and real-device 3G testing are scheduled for Phase 8; Phase 1 relied on semantic HTML, labelled controls, focus styles, contrast-checked tokens and reduced-motion support.
+- **Temporary access is ON.** `/sign-in` offers email + password for `owner@gbanab2b.test` (all four roles) and `newuser@gbanab2b.test` (none). Turn off with `DEMO_ACCESS_ENABLED=false` once SMS works — see SECURITY.md.
+- **SMS sign-in not yet configured** (needs an SMS provider in Supabase Auth).
+- **Enable leaked-password protection** in Supabase Auth settings while password access is on (advisor warning).
+- The marketplace is empty until sellers publish — no demo listings are seeded on purpose.
+- Price filter compares each listing's lowest tier price within one currency; USD/LRD conversion arrives with exchange rates in Phase 5.
+- Product variants (sizes/colours under one listing) deferred — sellers create one listing per pack size.
+- Ordering, addresses and invoices are Phase 3; "Order with escrow" is visibly disabled.
+- Business verification is a manual admin status for now; document-based verification (private bucket) arrives in Phase 4.
+- Listing photos are public by design (ADR 0008).
+- Vercel image optimisation is used for photos; watch the project's image-transformation quota as listings grow.
+- Admin role grant/revoke has no UI yet; no dark mode; automated accessibility and 3G device testing scheduled for Phase 8.
 
 ## Unresolved decisions
 
-1. Supabase project region and plan; SMS provider for +231 numbers (Twilio/Vonage/MessageBird/local aggregator) and cost controls.
-2. Payment provider onboarding: merchant accounts and API documentation from Lonestar Cell MTN and Orange Liberia.
-3. Fee rounding rule (to seller or platform) — ADR required before Phase 5.
-4. Business verification requirements (registration documents, TIN) — needed to design Phase 2 `businesses`.
-5. Whether one business can have multiple sellers/members at launch (schema supports it; UX to confirm).
+1. SMS provider for +231 numbers and cost controls.
+2. Payment provider onboarding: MTN MoMo and Orange Money merchant accounts + API docs.
+3. Fee rounding rule — ADR required before Phase 5.
+4. Business verification requirements (registration certificate, TIN, ID of owner) for Phase 4 document review.
+5. When to allow multiple businesses per person / team invitations (ADR 0007).
 6. Production domain name.
 
-## Next phase — Phase 2: Marketplace
+## Next phase — Phase 3: B2B commerce
 
-Businesses & members, categories, products with images (private-by-default Storage, public listing images), specifications, MOQ, reusable price tiers, logistics attributes, search & filters (Postgres full-text), product and seller pages, seller listing management — with migrations, RLS tests and docs.
+Delivery addresses; procurement cart (one seller per order); orders + order_items with price, fee and address snapshots; order state machine and status history; seller accept/reject and fulfilment; buyer order tracking; proforma invoices (print/PDF, WhatsApp share).

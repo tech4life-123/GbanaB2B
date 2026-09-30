@@ -13,6 +13,12 @@ Source of truth: `supabase/migrations/`. Detailed conventions: [docs/database/RE
 
 Enums: `app_role`, `account_status`, `role_status`, `currency_code (USD, LRD)`.
 
+## Phase 2 schema (marketplace)
+
+`businesses`, `business_members`, `product_categories`, `products`, `product_price_tiers`, `product_specifications`, `product_images`, view `product_listings`, and the public `product-images` storage bucket. Full write-up: [docs/database/marketplace.md](docs/database/marketplace.md).
+
+Workflow functions: `create_business`, `save_product_pricing`, `save_product_specifications`, `admin_review_business`. Integrity triggers: `products_guard` (publish rules, immutable slug/business, archive is terminal), `product_images_limit` (path + max 8), category audit.
+
 ## RLS matrix (Phase 1)
 
 | Table | anon | authenticated (self) | admin | service_role |
@@ -30,8 +36,8 @@ Migration 0001 revokes default grants on new tables/functions from client roles.
 
 ## Testing
 
-`npm run test:db` spins up a disposable PostgreSQL, loads a minimal Supabase stub (`auth.users`, `auth.uid()`, roles), applies every migration and runs `supabase/tests/*.sql`. Phase 1 covers 40+ scenarios: self-escalation attempts, column-level protection, cross-user reads, anon access, suspension, setting bounds, and audit immutability.
+`npm run test:db` spins up a disposable PostgreSQL, loads a minimal Supabase stub (`auth.users`, `auth.uid()`, roles), applies every migration and runs `supabase/tests/*.sql`. Phase 1 covers 50 scenarios and Phase 2 another 56 (106 total): self-escalation attempts, column-level protection, cross-user reads, anon access, suspension, setting bounds, and audit immutability.
 
 ## Planned domains
 
-Documented in [docs/database/domain-model.md](docs/database/domain-model.md): businesses, products & price tiers, orders & snapshots, freight RFQs & sealed bids, payments/escrow/ledger, verification, disputes, notifications.
+Documented in [docs/database/domain-model.md](docs/database/domain-model.md): orders & snapshots, freight RFQs & sealed bids, payments/escrow/ledger, verification, disputes, notifications.

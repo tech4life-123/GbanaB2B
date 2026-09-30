@@ -27,11 +27,16 @@ Security is a product requirement. This document is the threat model and the con
 | Clickjacking / sniffing | `X-Frame-Options: DENY`, `nosniff`, HSTS, referrer policy | ✅ |
 | Private pages cached on shared phones | Service worker never caches HTML/API | ✅ |
 | PII in logs | Logger redacts phone/otp/token/secret keys | ✅ tested |
+| Seller edits another seller's listing | `can_edit_business()` in RLS; column grants; DB re-checks image paths; storage folder policy | ✅ tested |
+| Unpublishable/incorrect listings go live | `products_guard` requires weight, tiers from MOQ, active business; `save_product_pricing` validates tiers | ✅ tested |
+| Seller self-verifies | `verification_status` not granted; `admin_review_business()` only | ✅ tested |
+| Drafts leak publicly | Public pages use anon client; RLS shows only active listings of active businesses | ✅ tested |
+| Oversized/malicious uploads | Bucket limit 2 MB, MIME allow-list, client re-encode to WebP/JPEG, path regex | ✅ |
 | Competitor sees bids | RLS own-rows-only + tests via API, nested relations, Realtime | 🔜 Phase 4 |
 | Fake payment success | Provider interface: success only from verified webhook/status query; idempotency keys | 🔜 Phase 5 |
 | Double escrow release | Transactional, idempotent release function + state machine | 🔜 Phase 5/6 |
 | Delivery code guessing | Hashed, expiring, single-use, attempt-limited codes | 🔜 Phase 6 |
-| Document exposure | Private storage buckets; signed URLs for admins only | 🔜 Phase 4 |
+| Document exposure | Private storage buckets; signed URLs for admins only (listing photos are deliberately public — ADR 0008) | 🔜 Phase 4 |
 
 ## Temporary access (pre-launch)
 
@@ -45,7 +50,7 @@ While no SMS provider is configured, `DEMO_ACCESS_ENABLED=true` (Vercel env) sho
 
 **Key handling:** the Supabase secret/service-role key lives only in server environment variables (Vercel, encrypted). Rotate on staff changes. Never paste it into client code, issues or chat.
 
-**Supabase Auth settings to review:** phone provider + SMS rate limits, OTP expiry (≤ 10 min), OTP length 6, disable email sign-ups if unused, enable leaked-password protection if passwords are ever enabled.
+**Supabase Auth settings to review:** phone provider + SMS rate limits, OTP expiry (≤ 10 min), OTP length 6, disable email sign-ups if unused, **enable leaked-password protection** (flagged by the Supabase advisor while temporary password access is on).
 
 ## AI boundary
 

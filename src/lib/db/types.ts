@@ -1,95 +1,33 @@
 /**
- * NOTE: row shapes are `type` aliases, not interfaces — supabase-js requires
- * them to be assignable to Record<string, unknown>, which interfaces are not.
- *
- * Hand-maintained types for the Phase 1 schema. Once a Supabase project is
- * linked, replace with `supabase gen types typescript` output (see README).
- * Keep in sync with supabase/migrations.
+ * App-facing database types. The source of truth is the generated
+ * `database.types.ts` (regenerate after each migration); this module gives
+ * the rows friendly names.
  */
-import type { Role } from "@/lib/auth/roles";
+import type { Database, Enums, Json, Tables } from "./database.types";
 
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type { Database, Json };
 
-export type AccountStatus = "active" | "suspended" | "closed";
-export type RoleStatus = "active" | "revoked";
+export type AccountStatus = Enums<"account_status">;
+export type RoleStatus = Enums<"role_status">;
 
-export type ProfileRow = {
-  id: string;
-  phone: string | null;
-  full_name: string | null;
-  display_name: string | null;
-  preferred_currency: "USD" | "LRD";
-  locale: string;
-  default_role: Role | null;
-  status: AccountStatus;
-  onboarded_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type ProfileRow = Tables<"profiles">;
+export type UserRoleRow = Tables<"user_roles">;
+export type PlatformSettingRow = Tables<"platform_settings">;
+export type AuditLogRow = Tables<"audit_logs">;
 
-export type UserRoleRow = {
-  id: string;
-  user_id: string;
-  role: Role;
-  status: RoleStatus;
-  granted_by: string | null;
-  granted_at: string;
-  revoked_at: string | null;
-};
+// Marketplace (Phase 2)
+export type BusinessRow = Tables<"businesses">;
+export type BusinessMemberRow = Tables<"business_members">;
+export type CategoryRow = Tables<"product_categories">;
+export type ProductRow = Tables<"products">;
+export type PriceTierRow = Tables<"product_price_tiers">;
+export type SpecificationRow = Tables<"product_specifications">;
+export type ProductImageRow = Tables<"product_images">;
+export type ProductListingRow = Tables<"product_listings">;
 
-export type PlatformSettingRow = {
-  key: string;
-  value: Json;
-  description: string | null;
-  is_sensitive: boolean;
-  min_value: number | null;
-  max_value: number | null;
-  updated_by: string | null;
-  updated_at: string;
-};
-
-export type AuditLogRow = {
-  id: number;
-  actor_id: string | null;
-  actor_role: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  metadata: Json;
-  created_at: string;
-};
-
-type Table<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: [];
-};
-
-export interface Database {
-  public: {
-    Tables: {
-      profiles: Table<ProfileRow>;
-      user_roles: Table<UserRoleRow>;
-      platform_settings: Table<PlatformSettingRow>;
-      audit_logs: Table<AuditLogRow>;
-    };
-    Views: Record<string, never>;
-    Functions: {
-      request_role: { Args: { p_role: Role }; Returns: undefined };
-      set_default_role: { Args: { p_role: Role }; Returns: undefined };
-      complete_onboarding: { Args: { p_full_name: string; p_role: Role }; Returns: undefined };
-      grant_role: { Args: { p_user_id: string; p_role: Role }; Returns: undefined };
-      revoke_role: { Args: { p_user_id: string; p_role: Role }; Returns: undefined };
-      has_role: { Args: { p_role: Role }; Returns: boolean };
-      is_admin: { Args: Record<string, never>; Returns: boolean };
-      update_platform_setting: { Args: { p_key: string; p_value: Json }; Returns: undefined };
-    };
-    Enums: {
-      app_role: Role;
-      account_status: AccountStatus;
-      role_status: RoleStatus;
-    };
-    CompositeTypes: Record<string, never>;
-  };
-}
+export type BusinessType = Enums<"business_type">;
+export type BusinessVerificationStatus = Enums<"business_verification_status">;
+export type BusinessStatus = Enums<"business_status">;
+export type ProductStatus = Enums<"product_status">;
+export type PackagingType = Enums<"packaging_type">;
+export type CurrencyCodeDb = Enums<"currency_code">;

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ClipboardList, PackageSearch } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ClipboardList, PackageSearch } from "lucide-react";
 import { Card, CardHeader, CardBody } from "@/components/ui/card";
 import { EmptyState, PageHeader } from "@/components/ui/feedback";
 import { StageTracker, TradePath } from "@/components/brand/trade-path";
@@ -65,7 +66,7 @@ export default async function BuyerOverviewPage() {
             items={[
               { label: "Verify your phone number", detail: "Your account and sign-in identity.", done: Boolean(viewer?.phone) },
               { label: "Add your name", detail: "Used on invoices and orders.", done: Boolean(viewer?.profile?.full_name) },
-              { label: "Add your business", detail: "Shop name and location for deliveries.", done: false, phase: 2 },
+              { label: "Add your business", detail: "Shop name and location for deliveries.", done: false, phase: 3 },
               { label: "Save a delivery address", detail: "Where carriers drop your stock.", done: false, phase: 3 },
               { label: "Link a Mobile Money wallet", detail: "MTN MoMo or Orange Money.", done: false, phase: 5 },
             ]}
@@ -74,10 +75,13 @@ export default async function BuyerOverviewPage() {
             <CardBody className="flex gap-4">
               <PackageSearch className="size-6 shrink-0 text-signal-400" aria-hidden="true" />
               <div>
-                <p className="font-bold">Marketplace opens in phase 2</p>
+                <p className="font-bold">Browse the marketplace</p>
                 <p className="mt-1 text-sm leading-relaxed text-trade-200">
                   Search wholesale stock by category, minimum order quantity and price tier, from sellers across Liberia.
                 </p>
+                <Link href="/marketplace" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-signal-400 hover:text-signal-300">
+                  Open marketplace <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
               </div>
             </CardBody>
           </div>

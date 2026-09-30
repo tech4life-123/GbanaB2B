@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const control =
@@ -15,18 +16,15 @@ export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return <textarea className={cn(control, "min-h-24 py-2.5", className)} {...props} />;
 }
 
-export function Select({ className, children, ...props }: ComponentProps<"select">) {
+/** Native select (best on phones) with a drawn chevron. Size the wrapper with `wrapperClassName`. */
+export function Select({ className, wrapperClassName, children, ...props }: ComponentProps<"select"> & { wrapperClassName?: string }) {
   return (
-    <select
-      className={cn(
-        control,
-        "h-11 appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%2352616b%22><path d=%22M5.5 7.5 10 12l4.5-4.5%22 stroke=%22%2352616b%22 stroke-width=%221.6%22 fill=%22none%22/></svg>')] bg-[length:1.1rem] bg-[right_0.7rem_center] bg-no-repeat pr-9",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </select>
+    <span className={cn("relative block", wrapperClassName)}>
+      <select className={cn(control, "h-11 cursor-pointer appearance-none pr-9", className)} {...props}>
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted" aria-hidden="true" />
+    </span>
   );
 }
 

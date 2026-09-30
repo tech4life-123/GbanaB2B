@@ -53,10 +53,16 @@ Admin screens use the *server* client, not the admin client: admin visibility co
 
 ## Front end
 
-- **Route groups:** `(site)` static marketing + design system; `(auth)` split-screen sign-in & onboarding; `(workspace)` role workspaces gated server-side by `RoleWorkspace`.
+- **Route groups:** `(site)` static marketing + design system; `(market)` public marketplace (session-aware header, cookie-less anon data client — ADR 0009); `(auth)` split-screen sign-in & onboarding; `(workspace)` role workspaces gated server-side by `RoleWorkspace`.
 - **Workspace shell:** navy sidebar on desktop; top bar + 4-item bottom tab bar on phones. Navigation is config (`features/workspace/nav.ts`); sections from later phases render an honest "opens in phase N" page — no simulated data.
 - **Design system:** `components/ui` primitives + `components/brand` (logo, trade path). Tokens in `app/globals.css`. Living reference at `/design-system`. See [docs/architecture/design-system.md](docs/architecture/design-system.md).
 - **Performance budget:** RSC-first, ~75 KB of self-hosted fonts (mono not preloaded), SVG logo, no animation libraries, `<details>`/`<dialog>` instead of JS widgets where possible.
+
+## Marketplace data flow
+
+- **Browse/search:** `features/marketplace/search-params.ts` turns untrusted URL params into a safe query (malformed values dropped) → `queries.ts` hits the `product_listings` view with Postgres full-text search, filters and pagination. Filters are a plain GET form: works without JS and every result page is a shareable link.
+- **Seller writes:** server actions in `features/seller/actions.ts` validate with Zod, check ownership, then call DB functions (`save_product_pricing`, …) or RLS-protected updates. Pricing rules are mirrored in `lib/pricing/tiers.ts` for instant feedback; the database is authoritative.
+- **Photos:** compressed in the browser (`lib/storage/compress.ts`) → uploaded directly to Storage (folder policy) → registered by a server action that re-validates the path. Served via `next/image` (AVIF/WebP, sized per device, quality 60 in grids).
 
 ## PWA
 

@@ -4,16 +4,16 @@ Target relational model, phase by phase. Designed around the business, not the c
 
 ## Identity (Phase 1–2)
 - ✅ `profiles`, ✅ `user_roles`
-- `businesses` (legal name, trading name, type: importer/wholesaler/retailer/fleet, registration no., county, verification status)
-- `business_members` (business ↔ profile, member role: owner/manager/staff)
-- `addresses` (owner business, label, county, town, landmark, geo point, is_default)
+- ✅ `businesses` (legal name, trading name, type: importer/wholesaler/retailer/fleet, registration no., county, verification status)
+- ✅ `business_members` (business ↔ profile, member role: owner/manager/staff)
+- `addresses` (owner business, label, county, town, landmark, geo point, is_default) — built in Phase 3 with delivery destinations
 
 ## Commerce (Phase 2)
-- `product_categories` (tree)
-- `products` (seller business, title, description, SKU, unit, MOQ, qty available, packaging, handling, fragile, stackable, origin country, status)
-- `product_images` (storage path, order) · `product_variants` · `product_specifications` (key/value)
-- `product_price_tiers` (product/variant, min_qty, max_qty nullable, unit_price_minor, currency) — non-overlapping via exclusion constraint
-- Logistics attributes on product/variant: `unit_weight_g`, `unit_volume_cm3`, dimensions
+- ✅ `product_categories` (tree-ready)
+- ✅ `products` (seller business, title, description, SKU, unit, MOQ, qty available, packaging, handling, fragile, stackable, origin country, status)
+- ✅ `product_images` (storage path, order) · ✅ `product_specifications` (key/value) · `product_variants` (deferred — separate listings per size for now)
+- ✅ `product_price_tiers` (min_qty, max_qty nullable, unit_price_minor; currency on product) — contiguity enforced by `save_product_pricing`
+- ✅ Logistics attributes on product: `unit_weight_g`, `unit_volume_cm3`, dimensions, fragile, stacking
 
 ## Orders (Phase 3)
 - `orders` (buyer business, seller business, status enum, currency, subtotal_minor, fee_bps snapshot, exchange_rate snapshot, delivery address snapshot, version for optimistic concurrency)

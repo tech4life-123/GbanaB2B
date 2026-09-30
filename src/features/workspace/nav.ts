@@ -10,6 +10,8 @@ import {
   Settings2,
   ShoppingBag,
   Building2,
+  Store,
+  Tags,
   Truck,
   Users,
   Wallet,
@@ -31,7 +33,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 1;
+export const CURRENT_PHASE = 2;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -57,7 +59,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your sales at a glance.", primary: true },
     { segment: "listings", label: "Listings", icon: Package, phase: 2, summary: "Create wholesale listings with MOQs, quantity tiers, weights and packaging.", primary: true },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Accept orders, prepare stock and hand over to the selected carrier.", primary: true },
-    { segment: "business", label: "Business", icon: Building2, phase: 2, summary: "Your business profile, team members and verification documents." },
+    { segment: "business", label: "Business", icon: Building2, phase: 2, summary: "Your business profile and verification status." },
     { segment: "payouts", label: "Payouts", icon: Banknote, phase: 5, summary: "Earnings released from escrow, platform fees and payout history.", primary: true },
   ],
   carrier: [
@@ -69,10 +71,12 @@ export const NAV: Record<Role, NavItem[]> = {
   ],
   admin: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Platform health and what needs attention.", primary: true },
+    { segment: "businesses", label: "Businesses", icon: Store, phase: 2, summary: "Seller businesses, verification and suspension.", primary: true },
     { segment: "users", label: "Users & roles", icon: Users, phase: 1, summary: "Accounts, roles and account status.", primary: true },
+    { segment: "categories", label: "Categories", icon: Tags, phase: 2, summary: "Marketplace product categories." },
     { segment: "settings", label: "Settings", icon: Settings2, phase: 1, summary: "Platform fee, OTP windows and other business rules.", primary: true },
-    { segment: "audit", label: "Audit log", icon: FileClock, phase: 1, summary: "Permanent record of sensitive actions.", primary: true },
-    { segment: "verification", label: "Verification", icon: BadgeCheck, phase: 4, summary: "Review driver documents, vehicles and business verification." },
+    { segment: "audit", label: "Audit log", icon: FileClock, phase: 1, summary: "Permanent record of sensitive actions." },
+    { segment: "verification", label: "Carrier checks", icon: BadgeCheck, phase: 4, summary: "Review driver documents and vehicles before carriers can bid." },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Every order across the marketplace, with delays flagged." },
     { segment: "finance", label: "Finance", icon: Wallet, phase: 5, summary: "Payments, escrow balances, payouts, refunds and reconciliation." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Open disputes, evidence and resolutions." },

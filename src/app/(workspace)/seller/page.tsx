@@ -1,69 +1,147 @@
 import type { Metadata } from "next";
-import { Package, Tags } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, Building2, ExternalLink, PackagePlus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
-import { EmptyState, PageHeader } from "@/components/ui/feedback";
-import { PrepareCard, SetupChecklist, firstName } from "@/features/workspace/components/dashboard";
+import { PageHeader, Stat } from "@/components/ui/feedback";
+import { SetupChecklist, firstName } from "@/features/workspace/components/dashboard";
+import { VERIFICATION } from "@/features/marketplace/constants";
+import { countMyListings, getMyBusiness, listMyListings } from "@/features/seller/queries";
 import { getViewer } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Seller workspace" };
 
 export default async function SellerOverviewPage() {
-  const viewer = await getViewer();
+  const [viewer, business] = await Promise.all([getViewer(), getMyBusiness()]);
   const name = viewer?.profile?.display_name || viewer?.profile?.full_name;
+
+  if (!business) {
+    return (
+      <div className="animate-fade-in space-y-8">
+        <PageHeader eyebrow="Seller workspace" title={`Welcome, ${firstName(name)}`} description="List stock by the carton, bag or pallet and sell to retailers across Liberia." />
+        <Card className="overflow-hidden">
+          <div className="grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+            <CardBody className="p-6 sm:p-8">
+              <span className="grid size-12 place-items-center rounded-lg bg-trade-900 text-signal-400">
+                <Building2 className="size-6" aria-hidden="true" />
+              </span>
+              <h2 className="mt-5 text-xl font-extrabold tracking-tight text-trade-900">First, set up your business</h2>
+              <p className="mt-2 max-w-md leading-relaxed text-muted">
+                Your business name, type and location appear on every listing. It takes about a minute.
+              </p>
+              <ButtonLink href="/seller/business" size="lg" className="mt-6" icon={<ArrowRight className="order-last size-5" aria-hidden="true" />}>
+                Create business profile
+              </ButtonLink>
+            </CardBody>
+            <div className="bg-manifest hidden p-8 text-white md:block">
+              <p className="label-caps text-trade-300">Then</p>
+              <ol className="mt-4 space-y-4 text-sm text-trade-100">
+                <li>① Add products with MOQs and quantity prices</li>
+                <li>② Add weight and photos</li>
+                <li>③ Publish — buyers across Liberia can find you</li>
+              </ol>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  const [counts, recent] = await Promise.all([countMyListings(business.id), listMyListings(business.id)]);
+  const verification = VERIFICATION[business.verification_status];
+  const hasPhoto = recent.some((l) => l.images.length > 0);
 
   return (
     <div className="animate-fade-in space-y-8">
       <PageHeader
-        eyebrow="Seller workspace"
+        eyebrow={business.trading_name}
         title={`Welcome, ${firstName(name)}`}
-        description="List stock by the carton, bag or pallet and sell to retailers across Liberia."
+        description="Manage your listings and keep your prices up to date."
+        actions={
+          <>
+            {business.status === "active" && (
+              <Link href={`/sellers/${business.slug}`} target="_blank" className={buttonClasses("outline", "md")}>
+                <ExternalLink className="size-4" aria-hidden="true" /> Seller page
+              </Link>
+            )}
+            {business.status === "active" && (
+              <ButtonLink href="/seller/listings/new" icon={<PackagePlus className="size-4" aria-hidden="true" />}>
+                New listing
+              </ButtonLink>
+            )}
+          </>
+        }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader eyebrow="Catalogue" title="Your listings" />
-            <CardBody>
-              <EmptyState compact icon={<Package className="size-5" />} title="No listings yet">
-                Listings open in phase 2. Each one will carry its MOQ, quantity-tier prices, weight and packaging so buyers
-                — and carriers — know exactly what they&apos;re getting.
-              </EmptyState>
-            </CardBody>
-          </Card>
+      <section aria-label="Listing summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Live" value={counts.active} tone="escrow" hint="Visible to buyers" />
+        <Stat label="Drafts" value={counts.draft} hint="Not yet published" />
+        <Stat label="Paused" value={counts.paused} hint="Hidden for now" />
+        <Stat label="Archived" value={counts.archived} hint="No longer sold" />
+      </section>
 
-          <PrepareCard
-            eyebrow="Prepare now"
-            title="What a strong listing needs"
-            intro="Gather these while listings are being built — you'll be ready to publish on day one."
-            icon={<Tags className="size-5" />}
-            items={[
-              { label: "Clear product photos", detail: "Show the packaging buyers will receive. Good light, plain background." },
-              { label: "Minimum order quantity", detail: "The smallest amount you'll sell — e.g. 10 bags or 1 carton." },
-              { label: "Quantity price tiers", detail: "For example 1–49 units, 50–99 units, 100+ units, each with its own price." },
-              { label: "Weight and size per unit", detail: "Freight is priced from these, so buyers get accurate carrier bids." },
-              { label: "Packaging and handling", detail: "Carton, sack, jerrycan, pallet; fragile, keep dry, do not stack." },
-            ]}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <Card>
+          <CardHeader
+            eyebrow="Catalogue"
+            title="Recently updated"
+            action={
+              <Link href="/seller/listings" className="inline-flex items-center gap-1 text-sm font-semibold text-trade-700 hover:text-trade-900">
+                All listings <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            }
           />
-        </div>
+          {recent.length ? (
+            <ul className="divide-y divide-line">
+              {recent.slice(0, 5).map((l) => (
+                <li key={l.id}>
+                  <Link href={`/seller/listings/${l.id}`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-canvas">
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold text-trade-900">{l.title}</span>
+                      <span className="text-xs text-muted">per {l.unit_label}</span>
+                    </span>
+                    <Badge tone={l.status === "active" ? "escrow" : l.status === "paused" ? "signal" : "neutral"}>
+                      {l.status === "active" ? "Live" : l.status[0]!.toUpperCase() + l.status.slice(1)}
+                    </Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <CardBody>
+              <p className="text-sm text-muted">No listings yet.</p>
+              <ButtonLink href="/seller/listings/new" className="mt-4" size="sm">
+                Create your first listing
+              </ButtonLink>
+            </CardBody>
+          )}
+        </Card>
 
         <div className="space-y-6">
           <SetupChecklist
             title="Get ready to sell"
             items={[
-              { label: "Verify your phone number", done: Boolean(viewer?.phone) },
-              { label: "Add your name", done: Boolean(viewer?.profile?.full_name) },
-              { label: "Create your business profile", detail: "Name, location, registration.", done: false, phase: 2 },
-              { label: "Publish your first listing", done: false, phase: 2 },
-              { label: "Set your payout wallet", detail: "Where released escrow funds go.", done: false, phase: 5 },
+              { label: "Create your business profile", done: true },
+              { label: "Publish your first listing", done: counts.active > 0, href: "/seller/listings/new" },
+              { label: "Add photos to a listing", done: hasPhoto, href: "/seller/listings" },
+              { label: "Get verified by GbanaB2B", detail: "Add your registration number to speed this up.", done: business.verification_status === "verified", href: "/seller/business" },
+              { label: "Set your payout wallet", done: false, phase: 5 },
             ]}
           />
           <Card>
-            <CardBody>
-              <p className="label-caps text-muted">How you get paid</p>
-              <p className="mt-2 text-sm leading-relaxed text-trade-800">
-                Buyers pay into escrow before goods move. When the buyer confirms delivery, your share — the product
-                subtotal less the platform fee — is released to you.
-              </p>
+            <CardBody className="flex items-center justify-between gap-3">
+              <div>
+                <p className="label-caps text-muted">Verification</p>
+                <p className="mt-1 text-sm font-semibold text-trade-900">{verification.label}</p>
+              </div>
+              {business.verification_status === "verified" ? (
+                <BadgeCheck className="size-6 text-escrow-600" aria-hidden="true" />
+              ) : (
+                <Link href="/seller/business" className="text-sm font-semibold text-signal-700 hover:text-signal-800">
+                  Details
+                </Link>
+              )}
             </CardBody>
           </Card>
         </div>

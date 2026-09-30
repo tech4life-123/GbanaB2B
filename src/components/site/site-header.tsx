@@ -1,18 +1,27 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { LayoutDashboard, Menu } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { ButtonLink } from "@/components/ui/button";
 
 const NAV = [
+  { href: "/marketplace", label: "Marketplace" },
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/#buyers", label: "Buyers" },
-  { href: "/#sellers", label: "Sellers" },
+  { href: "/#sellers", label: "Sell" },
   { href: "/#carriers", label: "Carriers" },
   { href: "/#trust", label: "Trust & escrow" },
 ];
 
-/** Public header. Static (no session lookup) so marketing pages stay cacheable and fast. */
-export function SiteHeader() {
+export interface HeaderAccount {
+  /** Workspace home, e.g. "/buyer". */
+  home: string;
+}
+
+/**
+ * Public header. On marketing pages it's static (no session lookup) so they
+ * stay cacheable; marketplace pages pass `account` so signed-in users get a
+ * way back to their workspace instead of "Sign in".
+ */
+export function SiteHeader({ account }: { account?: HeaderAccount | null }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-trade-900/95 backdrop-blur supports-[backdrop-filter]:bg-trade-900/85">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
@@ -31,15 +40,23 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Link
-            href="/sign-in"
-            className="hidden rounded-md px-3 py-2 text-sm font-semibold text-white hover:bg-white/5 sm:inline-flex"
-          >
-            Sign in
-          </Link>
-          <ButtonLink href="/sign-in?intent=join" size="sm">
-            Join the exchange
-          </ButtonLink>
+          {account ? (
+            <ButtonLink href={account.home} size="sm" icon={<LayoutDashboard className="size-4" aria-hidden="true" />}>
+              My workspace
+            </ButtonLink>
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="hidden rounded-md px-3 py-2 text-sm font-semibold text-white hover:bg-white/5 sm:inline-flex"
+              >
+                Sign in
+              </Link>
+              <ButtonLink href="/sign-in?intent=join" size="sm">
+                Join the exchange
+              </ButtonLink>
+            </>
+          )}
           {/* No-JS mobile menu */}
           <details className="group relative lg:hidden">
             <summary
@@ -58,14 +75,16 @@ export function SiteHeader() {
                   {item.label}
                 </Link>
               ))}
-              <div className="mt-2 grid gap-2 border-t border-line pt-2">
-                <ButtonLink href="/sign-in" variant="outline" size="md">
-                  Sign in
-                </ButtonLink>
-                <ButtonLink href="/sign-in?intent=join" size="md">
-                  Join the exchange
-                </ButtonLink>
-              </div>
+              {!account && (
+                <div className="mt-2 grid gap-2 border-t border-line pt-2">
+                  <ButtonLink href="/sign-in" variant="outline" size="md">
+                    Sign in
+                  </ButtonLink>
+                  <ButtonLink href="/sign-in?intent=join" size="md">
+                    Join the exchange
+                  </ButtonLink>
+                </div>
+              )}
             </div>
           </details>
         </div>
