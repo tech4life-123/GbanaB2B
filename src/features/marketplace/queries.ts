@@ -4,6 +4,7 @@ import { createSupabasePublicClient } from "@/lib/db/supabase/public";
 import { logger } from "@/lib/logging/logger";
 import type { CategoryRow, ProductListingRow } from "@/lib/db/types";
 import { PAGE_SIZE } from "./constants";
+import { PUBLIC_PRODUCT_COLUMNS } from "@/lib/db/columns";
 import { toWebSearch, type ListingQuery } from "./search-params";
 
 export type Listing = ProductListingRow;
@@ -92,7 +93,7 @@ export const getPublicProduct = cache(async (slug: string) => {
   const { data, error } = await db
     .from("products")
     .select(
-      "*, business:businesses(id, slug, trading_name, business_type, county, town, verification_status, created_at, description), " +
+      `${PUBLIC_PRODUCT_COLUMNS}, business:businesses(id, slug, trading_name, business_type, county, town, verification_status, created_at, description), ` +
         "category:product_categories(id, slug, name), " +
         "tiers:product_price_tiers(min_qty, max_qty, unit_price_minor), " +
         "specs:product_specifications(label, value, sort_order), " +

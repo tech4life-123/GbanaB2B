@@ -2421,6 +2421,14 @@ export type Database = {
       }
     }
     Functions: {
+      business_verification_note: {
+        Args: { p_business: string }
+        Returns: string | null
+      }
+      admin_business_notes: {
+        Args: Record<PropertyKey, never>
+        Returns: { business_id: string; note: string | null }[]
+      }
       ai_take_quota: {
         Args: { p_assistant: string }
         Returns: number

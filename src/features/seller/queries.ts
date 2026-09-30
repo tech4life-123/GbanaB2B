@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/db/supabase/server";
 import { logger } from "@/lib/logging/logger";
+import { BUSINESS_COLUMNS } from "@/lib/db/columns";
 import type { BusinessRow, ProductImageRow, ProductRow, ProductStatus } from "@/lib/db/types";
 
 /**
@@ -20,14 +21,17 @@ export const getMyBusiness = cache(async (): Promise<MyBusiness | null> => {
   if (!auth.user) return null;
   const { data, error } = await db
     .from("business_members")
-    .select("member_role, business:businesses(*)")
+    .select(`member_role, business:businesses(${BUSINESS_COLUMNS})`)
     .eq("profile_id", auth.user.id)
     .order("created_at")
     .limit(1)
     .maybeSingle();
   if (error) logger.error("seller.business_query_failed", { message: error.message });
   if (!data?.business) return null;
-  return { ...(data.business as unknown as BusinessRow), member_role: data.member_role };
+  const business = data.business as unknown as Omit<BusinessRow, "verification_note">;
+  // The team's note to this business lives behind a function, not a column grant.
+  const { data: note } = await db.rpc("business_verification_note", { p_business: business.id });
+  return { ...business, verification_note: note ?? null, member_role: data.member_role };
 });
 
 export interface SellerListing {

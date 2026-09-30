@@ -8,6 +8,7 @@ import { BUSINESS_TYPES, VERIFICATION } from "@/features/marketplace/constants";
 import { ReviewBusinessButton } from "@/features/admin/components/marketplace-admin";
 import { createSupabaseServerClient } from "@/lib/db/supabase/server";
 import { cn } from "@/lib/utils/cn";
+import { BUSINESS_COLUMNS } from "@/lib/db/columns";
 import type { BusinessRow, BusinessType } from "@/lib/db/types";
 
 export const metadata: Metadata = { title: "Businesses · Admin" };
@@ -24,11 +25,15 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
   const { filter: rawFilter } = await searchParams;
   const filter = FILTERS.find((f) => f.key === rawFilter)?.key ?? "all";
   const db = await createSupabaseServerClient();
-  let q = db!.from("businesses").select("*, products(count)").order("created_at", { ascending: false }).limit(200);
+  let q = db!.from("businesses").select(`${BUSINESS_COLUMNS}, products(count)`).order("created_at", { ascending: false }).limit(200);
   if (filter === "suspended") q = q.neq("status", "active");
   else if (filter !== "all") q = q.eq("verification_status", filter);
-  const { data } = await q;
-  const rows = (data ?? []) as unknown as (BusinessRow & { products: { count: number }[] })[];
+  const [{ data }, { data: notes }] = await Promise.all([q, db!.rpc("admin_business_notes")]);
+  const noteById = new Map((notes ?? []).map((n) => [n.business_id, n.note]));
+  const rows = ((data ?? []) as unknown as (Omit<BusinessRow, "verification_note"> & { products: { count: number }[] })[]).map((b) => ({
+    ...b,
+    verification_note: noteById.get(b.id) ?? null,
+  }));
   const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "Africa/Monrovia" });
 
   return (
