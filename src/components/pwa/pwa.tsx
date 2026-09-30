@@ -40,6 +40,7 @@ export function ConnectionStatus() {
   return (
     <div
       role="status"
+      data-print-hide
       className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] z-50 mx-auto flex w-fit max-w-[calc(100%-2rem)] items-center gap-2 rounded-full bg-trade-900 px-4 py-2 text-sm font-medium text-white shadow-raised lg:bottom-6"
     >
       <WifiOff className="size-4 text-signal-400" aria-hidden="true" />

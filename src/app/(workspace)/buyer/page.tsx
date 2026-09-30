@@ -1,48 +1,77 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ClipboardList, PackageSearch } from "lucide-react";
+import { ArrowRight, ClipboardList, PackageSearch, ShoppingCart } from "lucide-react";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardHeader, CardBody } from "@/components/ui/card";
-import { EmptyState, PageHeader } from "@/components/ui/feedback";
-import { StageTracker, TradePath } from "@/components/brand/trade-path";
+import { EmptyState, PageHeader, Stat } from "@/components/ui/feedback";
+import { TradePath } from "@/components/brand/trade-path";
 import { SetupChecklist, firstName } from "@/features/workspace/components/dashboard";
-import { getViewer } from "@/lib/auth/session";
+import { OrderList } from "@/features/commerce/components/order-bits";
+import { countMyCart, countOrdersByStatus, listMyAddresses, listOrders } from "@/features/commerce/queries";
+import { requireRole } from "@/lib/auth/session";
+import { ORDER_GROUPS } from "@/lib/orders/state";
 
 export const metadata: Metadata = { title: "Buyer workspace" };
 
-const ORDER_STAGES = [
-  { key: "ordered", label: "Ordered" },
-  { key: "freight", label: "Freight" },
-  { key: "escrow", label: "Paid", escrow: true },
-  { key: "transit", label: "In transit" },
-  { key: "delivered", label: "Delivered" },
-];
-
 export default async function BuyerOverviewPage() {
-  const viewer = await getViewer();
-  const name = viewer?.profile?.display_name || viewer?.profile?.full_name;
+  const viewer = await requireRole("buyer");
+  const name = viewer.profile?.display_name || viewer.profile?.full_name;
+  const [cartCount, counts, recent, addresses] = await Promise.all([
+    countMyCart(),
+    countOrdersByStatus({ scope: "buyer", viewerId: viewer.id }),
+    listOrders({ scope: "buyer", viewerId: viewer.id, statuses: ORDER_GROUPS.active, limit: 4 }),
+    listMyAddresses(),
+  ]);
+  const sum = (keys: readonly string[]) => keys.reduce((n, k) => n + (counts[k as keyof typeof counts] ?? 0), 0);
+  const totalOrders = Object.values(counts).reduce((a, b) => a + (b ?? 0), 0);
 
   return (
     <div className="animate-fade-in space-y-8">
       <PageHeader
         eyebrow="Buyer workspace"
         title={`Welcome, ${firstName(name)}`}
-        description="Restock in bulk, compare carriers and pay into escrow — all from one place."
+        description="Restock in bulk at locked prices, then track every order to your door."
+        actions={
+          cartCount > 0 ? (
+            <ButtonLink href="/buyer/cart" icon={<ShoppingCart className="size-4" aria-hidden="true" />}>
+              Cart · {cartCount}
+            </ButtonLink>
+          ) : (
+            <ButtonLink href="/marketplace" icon={<PackageSearch className="size-4" aria-hidden="true" />}>
+              Browse marketplace
+            </ButtonLink>
+          )
+        }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <section aria-label="Order summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Awaiting seller" value={counts.pending_seller ?? 0} hint="Stock being checked" />
+        <Stat label="Confirmed" value={sum(ORDER_GROUPS.progress)} hint="Invoice issued" />
+        <Stat label="Ready for pickup" value={sum(ORDER_GROUPS.ready)} hint="Packed by the seller" />
+        <Stat label="In cart" value={cartCount} hint={cartCount === 1 ? "product" : "products"} />
+      </section>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <div className="space-y-6">
-          <Card>
-            <CardHeader eyebrow="Active orders" title="Your orders" description="Every order shows exactly where it is on the trade path." />
-            <CardBody className="space-y-6">
-              <div className="rounded-lg border border-dashed border-line-strong bg-canvas px-4 pt-5 pb-4" aria-hidden="true">
-                <StageTracker stages={ORDER_STAGES} currentIndex={-1} />
-              </div>
-              <EmptyState compact icon={<ClipboardList className="size-5" />} title="No orders yet" className="border-0 bg-transparent !py-2">
-                When you place your first wholesale order it will appear here with its live status, invoice and delivery
-                details. Ordering opens in phase 3.
+          <section aria-labelledby="active-heading" className="space-y-3">
+            <div className="flex items-end justify-between gap-3">
+              <h2 id="active-heading" className="text-base font-bold text-trade-900">
+                Active orders
+              </h2>
+              {totalOrders > 0 && (
+                <Link href="/buyer/orders" className="inline-flex items-center gap-1 text-sm font-semibold text-trade-700 hover:text-trade-900">
+                  All orders <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              )}
+            </div>
+            {recent.length > 0 ? (
+              <OrderList orders={recent} hrefBase="/buyer/orders" counterpart="seller" />
+            ) : (
+              <EmptyState compact icon={<ClipboardList className="size-5" />} title={totalOrders ? "No active orders" : "No orders yet"}>
+                Find stock in the marketplace, add it to your cart at the minimum order quantity and check out. Each seller confirms before you pay.
               </EmptyState>
-            </CardBody>
-          </Card>
+            )}
+          </section>
 
           <Card>
             <CardHeader eyebrow="How buying works" title="From order to your shop floor" />
@@ -64,10 +93,10 @@ export default async function BuyerOverviewPage() {
           <SetupChecklist
             title="Get ready to buy"
             items={[
-              { label: "Verify your phone number", detail: "Your account and sign-in identity.", done: Boolean(viewer?.phone) },
-              { label: "Add your name", detail: "Used on invoices and orders.", done: Boolean(viewer?.profile?.full_name) },
-              { label: "Add your business", detail: "Shop name and location for deliveries.", done: false, phase: 3 },
-              { label: "Save a delivery address", detail: "Where carriers drop your stock.", done: false, phase: 3 },
+              { label: "Verify your phone number", detail: "Your account and sign-in identity.", done: Boolean(viewer.phone || viewer.email) },
+              { label: "Add your name", detail: "Used on invoices and orders.", done: Boolean(viewer.profile?.full_name) },
+              { label: "Save a delivery address", detail: "Where carriers drop your stock.", done: addresses.length > 0, href: "/buyer/addresses" },
+              { label: "Place your first order", detail: "Sellers confirm stock before you pay.", done: totalOrders > 0, href: "/marketplace" },
               { label: "Link a Mobile Money wallet", detail: "MTN MoMo or Orange Money.", done: false, phase: 5 },
             ]}
           />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId, useState } from "react";
+import { useActionState, useId, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -15,13 +15,13 @@ import { transitionOrder, type CommerceFormState } from "../actions";
  */
 export function OrderActions({ orderId, version, actions }: { orderId: string; version: number; actions: OrderAction[] }) {
   const [open, setOpen] = useState<OrderAction | null>(null);
-  const [state, formAction, pending] = useActionState<CommerceFormState, FormData>(transitionOrder, null);
+  const [state, formAction, pending] = useActionState<CommerceFormState, FormData>(async (prev, fd) => {
+    const result = await transitionOrder(prev, fd);
+    // Close the dialog after a successful move; the page re-renders with the new state.
+    if (result?.ok) setOpen(null);
+    return result;
+  }, null);
   const reasonId = useId();
-
-  // Close the dialog after a successful move; the page re-renders with the new state.
-  useEffect(() => {
-    if (state?.ok) setOpen(null);
-  }, [state]);
 
   if (actions.length === 0) return null;
   const forward = actions.filter((a) => a.to !== "cancelled");

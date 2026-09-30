@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Building2, ExternalLink, PackagePlus } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { countOrdersByStatus } from "@/features/commerce/queries";
 import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { PageHeader, Stat } from "@/components/ui/feedback";
@@ -48,7 +50,13 @@ export default async function SellerOverviewPage() {
     );
   }
 
-  const [counts, recent] = await Promise.all([countMyListings(business.id), listMyListings(business.id)]);
+  const [counts, recent, orderCounts] = await Promise.all([
+    countMyListings(business.id),
+    listMyListings(business.id),
+    countOrdersByStatus({ scope: "seller", businessId: business.id }),
+  ]);
+  const newOrders = orderCounts.pending_seller ?? 0;
+  const preparing = (orderCounts.confirmed ?? 0) + (orderCounts.fulfilling ?? 0);
   const verification = VERIFICATION[business.verification_status];
   const hasPhoto = recent.some((l) => l.images.length > 0);
 
@@ -57,7 +65,7 @@ export default async function SellerOverviewPage() {
       <PageHeader
         eyebrow={business.trading_name}
         title={`Welcome, ${firstName(name)}`}
-        description="Manage your listings and keep your prices up to date."
+        description="Handle new orders and keep your listings and stock up to date."
         actions={
           <>
             {business.status === "active" && (
@@ -74,14 +82,32 @@ export default async function SellerOverviewPage() {
         }
       />
 
-      <section aria-label="Listing summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Live" value={counts.active} tone="escrow" hint="Visible to buyers" />
-        <Stat label="Drafts" value={counts.draft} hint="Not yet published" />
-        <Stat label="Paused" value={counts.paused} hint="Hidden for now" />
-        <Stat label="Archived" value={counts.archived} hint="No longer sold" />
+      {newOrders > 0 && (
+        <Alert
+          tone="warning"
+          title={newOrders === 1 ? "1 new order is waiting for you" : `${newOrders} new orders are waiting for you`}
+          action={
+            <Link href="/seller/orders" className="inline-flex items-center gap-1 font-semibold underline-offset-2 hover:underline">
+              Review orders <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          }
+        >
+          Check your stock, then accept or cancel with a reason. Buyers see your response straight away.
+        </Alert>
+      )}
+
+      <section aria-label="Summary" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Link href="/seller/orders" className="rounded-lg focus-visible:outline-2 focus-visible:outline-signal-500">
+          <Stat label="New orders" value={newOrders} hint="Waiting for you" />
+        </Link>
+        <Link href="/seller/orders?tab=progress" className="rounded-lg focus-visible:outline-2 focus-visible:outline-signal-500">
+          <Stat label="Preparing" value={preparing} hint="Accepted, stock reserved" />
+        </Link>
+        <Stat label="Live listings" value={counts.active} tone="escrow" hint="Visible to buyers" />
+        <Stat label="Drafts" value={counts.draft} hint={counts.paused ? `${counts.paused} paused` : "Not yet published"} />
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader
             eyebrow="Catalogue"

@@ -1,6 +1,6 @@
 # Order & escrow lifecycle (target design)
 
-Implemented in Phases 3–6. Recorded now so earlier phases don't paint us into a corner.
+Phase 3 implements `PENDING_SELLER → CONFIRMED → FULFILLING → READY_FOR_FREIGHT` and `CANCELLED` (see [docs/database/commerce.md](../database/commerce.md)); Phases 4–6 add the rest.
 
 ## Order states
 
@@ -25,7 +25,7 @@ Platform fee       = product subtotal × platform_fee_bps / 10 000   (setting: c
 Seller net         = product subtotal − platform fee
 Carrier net        = accepted freight bid
 ```
-Rounding: computed in integer minor units; any remainder is assigned by a documented rule (Phase 5 ADR).
+Rounding: integer minor units, half-up (ADR 0010).
 
 ## Escrow release
 

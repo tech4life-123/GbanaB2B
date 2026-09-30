@@ -137,3 +137,20 @@
     height: 2px;
   }
 }
+
+/* Printed documents (proforma invoices): A4, true colours, no app chrome. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  [data-print-hide] {
+    display: none !important;
+  }
+}

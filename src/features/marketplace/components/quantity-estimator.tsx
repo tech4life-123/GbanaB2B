@@ -10,7 +10,7 @@ import { PriceTierTable } from "./price-tiers";
 /**
  * Lets a buyer try a quantity and see the tier that applies, the subtotal and
  * the cargo weight/carrier class. Estimation only — prices are locked when an
- * order is placed (Phase 3), and freight is priced by carrier bids.
+ * order is placed, and freight is priced by carrier bids.
  */
 export function QuantityEstimator({
   tiers,
