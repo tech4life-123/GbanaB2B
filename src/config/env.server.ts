@@ -29,6 +29,9 @@ const serverShape = {
   WEB_PUSH_PRIVATE_KEY: z.string(),
   WEB_PUSH_SUBJECT: z.string(),
 
+  // Shared secret for scheduled jobs (Vercel Cron sends it as a Bearer token). Random, 16+ chars.
+  CRON_SECRET: z.string().min(16),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]),
 
   // TEMPORARY: enables email + password sign-in for pre-provisioned accounts

@@ -14,7 +14,8 @@ import { PayForm, SandboxPanel } from "./pay-forms";
 
 const when = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Monrovia" });
 const RELEASABLE: OrderStatus[] = ["paid_escrow", "in_transit", "delivered", "awaiting_confirmation"];
-const REFUNDABLE: OrderStatus[] = [...RELEASABLE, "disputed"];
+/** A disputed order is frozen: money moves only through the dispute decision. */
+const REFUNDABLE: OrderStatus[] = RELEASABLE;
 
 /**
  * Payment section of an order page.
@@ -117,6 +118,12 @@ export function PaymentPanel({
               <span className="text-sm text-muted">{escrow.status === "refunded" ? "Refunded" : "Held"}</span>
               <span className="text-2xl font-bold text-trade-900">{money(escrow.amount_minor)}</span>
             </div>
+            {escrow.refunded_minor > 0 && escrow.status !== "refunded" && (
+              <div className="flex items-end justify-between gap-4 rounded-lg bg-canvas px-4 py-3">
+                <span className="text-sm text-muted">Part refunded to the buyer</span>
+                <span className="text-lg font-bold text-trade-900">{money(escrow.refunded_minor)}</span>
+              </div>
+            )}
             {perspective === "admin" && (
               <dl className="grid grid-cols-3 gap-3 text-sm">
                 {shares.map((s) => (
@@ -130,7 +137,13 @@ export function PaymentPanel({
           </>
         )}
 
-        {perspective === "admin" && escrow.status === "held" && (
+        {order.status === "disputed" && (
+          <Alert tone="warning" title="Frozen while a dispute is open">
+            Release and refund are paused. The dispute decision decides where the money goes.
+          </Alert>
+        )}
+
+        {perspective === "admin" && escrow.status === "held" && order.status !== "disputed" && (
           <div className="flex flex-wrap gap-2">
             {RELEASABLE.includes(order.status) && <ReleaseEscrowButton orderId={order.id} />}
             {REFUNDABLE.includes(order.status) && <RefundEscrowButton orderId={order.id} />}

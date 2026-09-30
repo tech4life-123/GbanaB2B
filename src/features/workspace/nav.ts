@@ -9,6 +9,7 @@ import {
   Package,
   Route,
   Settings2,
+  Star,
   ShoppingBag,
   ShoppingCart,
   Building2,
@@ -36,7 +37,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 5;
+export const CURRENT_PHASE = 6;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -66,6 +67,8 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Accept orders, prepare stock and hand over to the selected carrier.", primary: true },
     { segment: "business", label: "Business", icon: Building2, phase: 2, summary: "Your business profile and verification status." },
     { segment: "payouts", label: "Payouts", icon: Banknote, phase: 5, summary: "Earnings released from escrow, platform fees and payout history." },
+    { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Disputes on your orders, with evidence and replies." },
+    { segment: "reviews", label: "Reviews", icon: Star, phase: 6, summary: "Buyer ratings of your business, and your replies." },
   ],
   carrier: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your hauling at a glance.", primary: true },
@@ -75,6 +78,8 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "vehicles", label: "Vehicles", icon: Container, phase: 4, summary: "Trucks, vans and bikes you haul with." },
     { segment: "deliveries", label: "Deliveries", icon: Route, phase: 6, summary: "Assigned jobs, pickup details and delivery-code confirmation." },
     { segment: "earnings", label: "Earnings", icon: Banknote, phase: 5, summary: "Freight payments released from escrow after confirmed delivery." },
+    { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Disputes on deliveries you carried." },
+    { segment: "reviews", label: "Reviews", icon: Star, phase: 6, summary: "Buyer ratings of your deliveries, and your replies." },
   ],
   admin: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Platform health and what needs attention.", primary: true },
@@ -88,6 +93,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Every order across the marketplace, with delays flagged." },
     { segment: "finance", label: "Finance", icon: Wallet, phase: 5, summary: "Payments, escrow balances, payouts, refunds and reconciliation." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Open disputes, evidence and resolutions." },
+    { segment: "reviews", label: "Reviews", icon: Star, phase: 6, summary: "Moderate buyer reviews of sellers and carriers." },
   ],
 };
 

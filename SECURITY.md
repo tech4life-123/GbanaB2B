@@ -43,7 +43,14 @@ Security is a product requirement. This document is the threat model and the con
 | Test provider used in production | `payments.sandbox_enabled` setting (admin-only, audited) + server secret; UI labels it; real providers stay off until verified adapters exist | ✅ |
 | Money edited after the fact | Ledger is append-only (update/delete/truncate blocked) and every entry group must balance at commit | ✅ tested |
 | Double escrow release / refund after release | `admin_release_escrow` and `admin_refund_escrow` lock the escrow row; a second call is a no-op; refunded funds can't be released and vice versa | ✅ tested |
-| Delivery code guessing | Hashed, expiring, single-use, attempt-limited codes | 🔜 Phase 6 |
+| Delivery code guessing or leaking | Random 6-digit code readable only by the buyer (RLS; admins and sellers can't read it); attempts counted and the code locks after 5; buyer can regenerate; useless once settled | ✅ tested |
+| Release while a claim is open | Open dispute freezes the delivery code, buyer confirm and admin release/refund; only the dispute decision moves money | ✅ tested |
+| Double release / refund via different paths | Every release goes through `settle_escrow` and refunds through `refund_escrow_*`, all locking the escrow row; one refund per order | ✅ tested |
+| Evidence exposure or tampering | Private bucket; parties and admin only; append-only (no delete); path, type, size and 12-file cap re-checked in the database | ✅ tested |
+| Fake or abusive reviews | Buyer of a completed order only, once per subject, inside 30 days, immutable; public columns hide reviewer and order; admin hide is audited and reverses the rating | ✅ tested |
+| Stuck or abandoned orders | Unpaid orders expire after 48 h (stock released); silent deliveries release after 72 h; late provider success is parked, not applied | ✅ tested |
+| Scheduled-job abuse | `/api/cron/sweep` requires the `CRON_SECRET` bearer (timing-safe); the database function is service-role only | ✅ tested |
+| Location tracking of carriers | No continuous GPS: opt-in single point per update, rounded to ~11 m, at most every 120 s | ✅ tested |
 | Document exposure | Private storage buckets; signed URLs for admins only (listing photos are deliberately public — ADR 0008) | 🔜 Phase 4 |
 
 ## Temporary access (pre-launch)

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CalendarDays, Clock, Layers, Package, Scale } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, Clock, Layers, Package, Phone, Scale } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MoneyText } from "@/components/ui/data";
 import { formatWeight } from "@/lib/logistics/units";
@@ -111,6 +111,28 @@ function Fact({ icon, label, value }: { icon: React.ReactNode; label: string; va
         {label}
       </p>
       <p className="tabular mt-1 font-mono text-sm font-semibold text-trade-900">{value}</p>
+    </div>
+  );
+}
+
+/** A named place or person with address lines and a tap-to-call button. */
+export function ContactBlock({ icon, title, name, phone, lines }: { icon: React.ReactNode; title: string; name?: string; phone?: string | null; lines: (string | null | undefined)[] }) {
+  return (
+    <div>
+      <p className="label-caps flex items-center gap-1.5 text-muted">
+        <span aria-hidden="true">{icon}</span> {title}
+      </p>
+      <p className="mt-1 font-bold text-trade-900">{name}</p>
+      {lines.filter(Boolean).map((l, i) => (
+        <p key={i} className="text-sm text-trade-800">
+          {l}
+        </p>
+      ))}
+      {phone && (
+        <a href={`tel:${phone}`} className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-md border border-line-strong px-3 font-mono text-sm font-semibold text-trade-900 hover:bg-trade-50">
+          <Phone className="size-3.5" aria-hidden="true" /> {phone}
+        </a>
+      )}
     </div>
   );
 }

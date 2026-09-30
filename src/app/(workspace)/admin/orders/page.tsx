@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, PageHeader } from "@/components/ui/feedback";
 import { Input } from "@/components/ui/field";
 import { FilterTabs, OrderList } from "@/features/commerce/components/order-bits";
+import { RunSweepButton } from "@/features/delivery/components/buyer-controls";
 import { countOrdersByStatus, listOrders } from "@/features/commerce/queries";
 import { requireRole } from "@/lib/auth/session";
 import { ORDER_GROUPS, type OrderStatus } from "@/lib/orders/state";
@@ -30,7 +31,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
 
   return (
     <div className="animate-fade-in space-y-6">
-      <PageHeader eyebrow="Admin" title="Orders" description="Every order on the marketplace. Admins can cancel with a reason; only sellers accept orders." />
+      <PageHeader eyebrow="Admin" title="Orders" description="Every order on the marketplace. Admins can cancel with a reason; only sellers accept orders." actions={<RunSweepButton />} />
       <form role="search" className="flex max-w-md gap-2">
         <label htmlFor="q" className="sr-only">
           Order number

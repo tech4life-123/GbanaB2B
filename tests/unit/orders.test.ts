@@ -38,6 +38,20 @@ describe("order state machine (mirror of transition_order)", () => {
     }
   });
 
+  it("models the Phase 6 delivery and dispute paths (driven by database workflows, not by buttons)", () => {
+    expect(orderMachine.can("paid_escrow", "in_transit")).toBe(true);
+    expect(orderMachine.can("in_transit", "awaiting_confirmation")).toBe(true);
+    expect(orderMachine.can("awaiting_confirmation", "completed")).toBe(true);
+    expect(orderMachine.can("awaiting_confirmation", "disputed")).toBe(true);
+    // a withdrawn dispute restores the order to where it was
+    for (const back of ["in_transit", "paid_escrow", "awaiting_confirmation"] as const) expect(orderMachine.can("disputed", back)).toBe(true);
+    for (const end of ["refunded", "partially_refunded", "completed"] as const) expect(orderMachine.can("disputed", end)).toBe(true);
+    expect(orderMachine.can("completed", "disputed")).toBe(false);
+    // none of these can be triggered from the generic transition buttons
+    expect(availableActions("in_transit", "admin")).toEqual([]);
+    expect(availableActions("disputed", "buyer")).toEqual([]);
+  });
+
   it("has labels for every status and terminal states with no exits", () => {
     for (const s of orderMachine.states) expect(ORDER_STATUS[s].label).toBeTruthy();
     expect(orderMachine.isTerminal("cancelled")).toBe(true);

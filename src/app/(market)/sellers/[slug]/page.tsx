@@ -8,6 +8,9 @@ import { BUSINESS_TYPES, VERIFICATION } from "@/features/marketplace/constants";
 import { ProductGrid } from "@/features/marketplace/components/product-card";
 import { getPublicSeller, searchListings } from "@/features/marketplace/queries";
 import { parseListingQuery } from "@/features/marketplace/search-params";
+import { ReviewList } from "@/features/reviews/components/review-list";
+import { TrustSummary } from "@/features/reviews/components/stars";
+import { getTrustStats, listReviewsFor } from "@/features/reviews/queries";
 import type { BusinessType } from "@/lib/db/types";
 
 type Props = {
@@ -35,6 +38,7 @@ export default async function SellerPage({ params, searchParams }: Props) {
     searchListings({ ...query, currency: "USD" }),
     searchListings({ ...query, currency: "LRD" }),
   ]);
+  const [trust, reviews] = await Promise.all([getTrustStats("seller", seller.id), listReviewsFor("seller", seller.id, 10)]);
   const items = [...usd.items, ...lrd.items];
   const total = usd.total + lrd.total;
   const verification = VERIFICATION[seller.verification_status];
@@ -58,6 +62,9 @@ export default async function SellerPage({ params, searchParams }: Props) {
               {verification.label}
             </Badge>
           </div>
+          <div className="mt-3 rounded-md bg-white/95 px-3 py-2 text-trade-900 sm:inline-block">
+            <TrustSummary stats={trust} />
+          </div>
           {seller.description && <p className="mt-4 max-w-2xl leading-relaxed text-trade-100">{seller.description}</p>}
         </div>
       </section>
@@ -74,6 +81,8 @@ export default async function SellerPage({ params, searchParams }: Props) {
             This seller hasn&apos;t published any stock. <Link href="/marketplace" className="font-semibold text-signal-700 underline">Browse the marketplace</Link>.
           </EmptyState>
         )}
+        <h2 className="mt-10 mb-4 text-xl font-extrabold tracking-tight text-trade-900">Buyer reviews</h2>
+        <ReviewList reviews={reviews} emptyText="This seller hasn't been reviewed yet." />
       </div>
     </>
   );

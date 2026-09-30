@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Store, Trophy, User } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin, Store, Trophy, Truck, User } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { ButtonLink } from "@/components/ui/button";
 import { MoneyText } from "@/components/ui/data";
 import { BidForm } from "@/features/carrier/components/bid-form";
-import { CargoFacts, formatDay, Route } from "@/features/carrier/components/load-bits";
+import { CargoFacts, ContactBlock, formatDay, Route } from "@/features/carrier/components/load-bits";
 import { getLoad, getMyCarrier } from "@/features/carrier/queries";
 import { requireRole } from "@/lib/auth/session";
 import { BID_STATUS, formatEta, RFQ_STATUS, timeLeft, vehicleFits } from "@/lib/freight";
@@ -73,6 +74,11 @@ export default async function LoadPage({ params }: { params: Promise<{ id: strin
                 {formatMoney({ amountMinor: assignment.amount_minor, currency: assignment.currency })} · deliver by {formatDay(assignment.proposed_delivery_date)}. Payment is held in escrow before pickup and released after delivery is confirmed.
               </p>
             </div>
+          </div>
+          <div className="border-b border-line px-5 py-3">
+            <ButtonLink href={`/carrier/deliveries/${assignment.order_id}`} variant="primary" size="sm" icon={<Truck className="size-4" aria-hidden="true" />}>
+              Open delivery
+            </ButtonLink>
           </div>
           <div className="grid gap-5 p-5 sm:grid-cols-2">
             <ContactBlock icon={<Store className="size-4" />} title="Pick up from" name={pickup.name} phone={pickup.phone} lines={[pickup.address_line, `${pickup.town}, ${pickup.county}`]} />
@@ -178,27 +184,6 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     <div className="flex items-center justify-between gap-3">
       <dt className="text-muted">{label}</dt>
       <dd className="font-semibold text-trade-900">{children}</dd>
-    </div>
-  );
-}
-
-function ContactBlock({ icon, title, name, phone, lines }: { icon: React.ReactNode; title: string; name?: string; phone?: string | null; lines: (string | null | undefined)[] }) {
-  return (
-    <div>
-      <p className="label-caps flex items-center gap-1.5 text-muted">
-        <span aria-hidden="true">{icon}</span> {title}
-      </p>
-      <p className="mt-1 font-bold text-trade-900">{name}</p>
-      {lines.filter(Boolean).map((l, i) => (
-        <p key={i} className="text-sm text-trade-800">
-          {l}
-        </p>
-      ))}
-      {phone && (
-        <a href={`tel:${phone}`} className="mt-2 inline-flex h-9 items-center gap-1.5 rounded-md border border-line-strong px-3 font-mono text-sm font-semibold text-trade-900 hover:bg-trade-50">
-          <Phone className="size-3.5" aria-hidden="true" /> {phone}
-        </a>
-      )}
     </div>
   );
 }

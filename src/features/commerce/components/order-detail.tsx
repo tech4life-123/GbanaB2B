@@ -12,7 +12,7 @@ import type { OrderDetail } from "../queries";
 import { OrderActions } from "./order-actions";
 import { AddressBlock, formatDate, formatDateTime, OrderStatusBadge, SummaryRow } from "./order-bits";
 
-const ACTOR_LABEL: Record<string, string> = { buyer: "Buyer", seller: "Seller", admin: "GbanaB2B admin", system: "System" };
+const ACTOR_LABEL: Record<string, string> = { buyer: "Buyer", seller: "Seller", carrier: "Carrier", admin: "GbanaB2B admin", system: "System" };
 
 /**
  * One order, seen by the buyer, the seller or an admin. Everything shown is the
@@ -26,6 +26,8 @@ export function OrderDetailView({
   notice,
   freight,
   payment,
+  delivery,
+  trust,
 }: {
   order: OrderDetail;
   perspective: OrderActor;
@@ -36,6 +38,10 @@ export function OrderDetailView({
   freight?: React.ReactNode;
   /** Payment and escrow section (Phase 5), rendered under freight. */
   payment?: React.ReactNode;
+  /** Delivery tracking, code and confirmation (Phase 6). */
+  delivery?: React.ReactNode;
+  /** Disputes and reviews (Phase 6), rendered under payment. */
+  trust?: React.ReactNode;
 }) {
   const meta = ORDER_STATUS[order.status];
   const actions = availableActions(order.status, perspective, { placedAt: order.placed_at, cancelWindowMinutes });
@@ -97,6 +103,8 @@ export function OrderDetailView({
 
       {freight}
       {payment}
+      {delivery}
+      {trust}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="space-y-6">

@@ -8,6 +8,8 @@ import { BID_STATUS, formatEta, RFQ_STATUS, timeLeft, VEHICLE_CLASS, VEHICLE_TYP
 import { formatWeight } from "@/lib/logistics/units";
 import { formatMoney, type CurrencyCode } from "@/lib/money/currency";
 import type { OrderActor, OrderStatus } from "@/lib/orders/state";
+import { TrustSummary } from "@/features/reviews/components/stars";
+import type { TrustStats } from "@/features/reviews/queries";
 import type { OrderFreight } from "../queries";
 import { CancelFreightButton, RequestFreightForm, SelectBidButton } from "./freight-forms";
 
@@ -21,7 +23,9 @@ export function FreightPanel({
   order,
   freight,
   perspective,
+  carrierTrust,
 }: {
+  carrierTrust?: Map<string, TrustStats>;
   order: { id: string; status: OrderStatus; version: number; currency: CurrencyCode; subtotal_minor: number; total_weight_g: number; itemCount: number; pieces: number };
   freight: OrderFreight;
   perspective: OrderActor;
@@ -134,6 +138,7 @@ export function FreightPanel({
                       <p className="mt-0.5 text-sm text-trade-800">
                         {VEHICLE_TYPES[b.vehicle_type]} · {VEHICLE_CLASS[b.vehicle_class].label} · up to {b.payload_kg.toLocaleString("en-US")} kg
                       </p>
+                      <TrustSummary stats={carrierTrust?.get(b.carrier_id) ?? null} className="mt-1 !text-xs" />
                       <p className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="size-3.5" aria-hidden="true" /> {formatEta(b.eta_hours)} on the road

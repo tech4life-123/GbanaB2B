@@ -1,10 +1,10 @@
 # Project status
 
-_Last updated: 2026-09-30 (Phase 5 complete, test provider only)_
+_Last updated: 2026-09-30 (Phase 6 complete; payments still on the test provider)_
 
 ## Current phase
 
-**Phase 5 — Financial engine: complete (built against a test provider).** MTN MoMo and Orange Money are **not connected** — they need provider API access and credentials. Stopped at the Phase 5 boundary. Next: **Phase 6 — Delivery & trust** (delivery lifecycle, secure delivery code, disputes, refunds with evidence, reviews).
+**Phase 6 — Delivery & trust: complete.** MTN MoMo and Orange Money are still **not connected** (payments run on the labelled test provider; SMS is on hold with temporary email+password access). Stopped at the Phase 6 boundary. Next: **Phase 7 — AI assistants** (they may suggest and explain, never approve payments or releases), then **Phase 8 — Production hardening**.
 
 ## Verification (all passing)
 
@@ -12,14 +12,22 @@ _Last updated: 2026-09-30 (Phase 5 complete, test provider only)_
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
-| `npm test` | ✅ 93 unit tests — adds the order state machine (checked against the database's allow-list for every actor), fee rounding and cart grouping |
-| `npm run test:db` | ✅ 12 migrations apply cleanly on PostgreSQL 16; 378 RLS/workflow assertions (… + 109 for Phase 5) |
+| `npm test` | ✅ 110 unit tests — adds delivery/dispute/review helpers, evidence paths, cron auth and the Phase 6 order paths |
+| `npm run test:db` | ✅ 13 migrations apply cleanly on PostgreSQL 16; 559 RLS/workflow assertions (… + 181 for Phase 6) |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
-| Live Supabase | ✅ all 12 migrations applied; live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
+| Live Supabase | ✅ all 13 migrations applied (39 Phase 6 function bodies verified identical to local); live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
 | Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
-| Visual check | ✅ order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
+| Visual check | ✅ Phase 6: delivery code card, carrier job controls (pickup/in transit/arrived), dispute page with admin decision form, reviews and trust summary at 1366px and 390px (sample-data harness, removed). Earlier: order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
 
 ## Completed
+
+### Phase 6 — Delivery & trust
+- **Delivery:** carrier `/carrier/deliveries` (active / delivered / cancelled) and a job page: collect goods → post updates (optional one-off approximate location, rate-limited) → arrived → enter the buyer's 6-digit code (5 tries then locked) or report a failed delivery. Order pages show the tracking trail to buyer, seller and admin.
+- **Delivery code:** buyer-only card (hidden until shown), regenerate, or confirm receipt in the app; release happens through one database path; silence for 72 h releases automatically.
+- **Disputes:** any party opens one while money is in escrow (freezes release/refund); conversation thread; private photo/video evidence (browser re-encode, direct upload, 12-file cap); opener can withdraw; `/buyer|seller|carrier|admin/disputes`; admin decision console (start review; refund, partial refund paid by seller's or carrier's share, release, reject; fault; written explanation; audited).
+- **Reviews & trust:** buyers rate seller and carrier once after completion (30 days, immutable); subjects reply once; admin hides with an audited reason (`/admin/reviews`); ratings and completed/upheld counts on public seller pages and beside each carrier bid; `/seller/reviews`, `/carrier/reviews`.
+- **Unpaid orders:** buyer/admin can cancel before payment; expire after 48 h; nightly `/api/cron/sweep` (needs `CRON_SECRET`) plus an admin "Run housekeeping now" button.
+- Docs: `docs/database/delivery-and-trust.md`, `docs/workflows/delivery-and-disputes.md`, ADR 0016, SECURITY.md threat rows.
 
 ### Phase 5 — Financial engine
 - **Buyer:** after booking a carrier, pay the order total from the order page (amount comes from the database, one reference per form so a double-tap can't double-charge); waiting state; escrow card; `/buyer/payments`
@@ -108,14 +116,15 @@ App shell, design system (`/design-system`), PWA, env architecture, phone OTP au
 5. When to allow multiple businesses per person / team invitations (ADR 0007).
 6. Production domain name.
 
-## Known limits (Phase 5)
+## Known limits (Phase 6)
 
-- **Test provider is ON** (`payments.sandbox_enabled`). Turn it off before real launch. No real money moves.
-- Payouts and refunds are recorded by an admin after sending; automated disbursement waits for real provider APIs.
-- Escrow release is an admin decision until Phase 6's delivery code. Partial refunds arrive with disputes.
-- Orders stuck in `awaiting_payment` can't be cancelled yet (Phase 6 adds expiry).
+- **Test provider is ON** (`payments.sandbox_enabled`). Turn it off before real launch. No real money moves. Payouts and refunds are still recorded by an admin after sending.
+- **`CRON_SECRET` must be set on Vercel** for the nightly sweep to run (the route refuses without it). Vercel Hobby runs cron at most once a day, so auto-release can be up to a day late.
+- Carriers can't read orders (by design); the freight request number is their job reference.
+- No map SDK: approximate locations open in OpenStreetMap. No SMS/push notifications yet — people see updates when they open the app.
+- Refunds happen only through disputes (full or partial); there is no buyer-initiated refund outside a dispute.
 - Webhook endpoint has no rate limiting yet (Phase 8).
 
-## Next phase — Phase 6: Delivery & trust
+## Next phase — Phase 7: AI assistants
 
-Delivery lifecycle and tracking, secure delivery code that releases escrow, disputes with private evidence, refunds, reviews and ratings.
+Seller listing help, buyer search help, dispute summaries for admins. AI may suggest and explain; it never approves payments, releases escrow or decides disputes.

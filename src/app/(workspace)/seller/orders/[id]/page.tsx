@@ -8,6 +8,10 @@ import { FreightPanel } from "@/features/freight/components/freight-panel";
 import { getOrderFreight } from "@/features/freight/queries";
 import { PaymentPanel } from "@/features/payments/components/payment-panel";
 import { getOrderPayment, getPaymentMethods } from "@/features/payments/queries";
+import { DeliveryPanel } from "@/features/delivery/components/delivery-panel";
+import { getDeliverySettings, getOrderDelivery } from "@/features/delivery/queries";
+import { DisputePanel } from "@/features/disputes/components/dispute-panel";
+import { getOrderDisputes } from "@/features/disputes/queries";
 
 
 export const metadata: Metadata = { title: "Order" };
@@ -17,7 +21,14 @@ export default async function SellerOrderPage({ params }: { params: Promise<{ id
   const [{ id }, business] = await Promise.all([params, getMyBusiness()]);
   const [order, settings] = await Promise.all([getOrder(id), getCommerceSettings()]);
   if (!order || !business || order.seller_business_id !== business.id) notFound();
-  const [freight, payment, methods] = await Promise.all([getOrderFreight(order.id), getOrderPayment(order.id, { withLedger: false }), getPaymentMethods()]);
+  const [freight, payment, methods, delivery, deliverySettings, disputes] = await Promise.all([
+    getOrderFreight(order.id),
+    getOrderPayment(order.id, { withLedger: false }),
+    getPaymentMethods(),
+    getOrderDelivery(order.id),
+    getDeliverySettings(),
+    getOrderDisputes(order.id),
+  ]);
   return (
     <OrderDetailView
       order={order}
@@ -40,6 +51,8 @@ export default async function SellerOrderPage({ params }: { params: Promise<{ id
           order={{ id: order.id, status: order.status, currency: order.currency, total_minor: order.total_minor }}
         />
       }
+      delivery={<DeliveryPanel order={{ id: order.id, status: order.status }} perspective="seller" data={delivery} settings={deliverySettings} />}
+      trust={<DisputePanel order={{ id: order.id, status: order.status, currency: order.currency, total_minor: order.total_minor }} role="seller" disputes={disputes} />}
     />
   );
 }

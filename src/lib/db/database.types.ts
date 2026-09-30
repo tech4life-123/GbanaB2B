@@ -509,6 +509,273 @@ export type Database = {
           },
         ]
       }
+      delivery_codes: {
+        Row: {
+          attempts: number
+          code: string
+          created_at: string
+          locked: boolean
+          order_id: string
+          regenerated_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code: string
+          created_at?: string
+          locked?: boolean
+          order_id: string
+          regenerated_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code?: string
+          created_at?: string
+          locked?: boolean
+          order_id?: string
+          regenerated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_codes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_events: {
+        Row: {
+          actor_id: string | null
+          actor_role: string
+          created_at: string
+          id: number
+          kind: string
+          lat: number | null
+          lng: number | null
+          note: string | null
+          order_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_role: string
+          created_at?: string
+          id?: never
+          kind: string
+          lat?: number | null
+          lng?: number | null
+          note?: string | null
+          order_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_role?: string
+          created_at?: string
+          id?: never
+          kind?: string
+          lat?: number | null
+          lng?: number | null
+          note?: string | null
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_evidence: {
+        Row: {
+          caption: string | null
+          created_at: string
+          dispute_id: string
+          file_name: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string | null
+          uploader_role: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          dispute_id: string
+          file_name: string
+          id?: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_by?: string | null
+          uploader_role: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          dispute_id?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+          uploaded_by?: string | null
+          uploader_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_evidence_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          kind: Database["public"]["Enums"]["dispute_kind"]
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          description: string
+          dispute_number: string
+          fault: string | null
+          id: string
+          opened_by: string
+          opened_by_role: string
+          order_id: string
+          prior_order_status: Database["public"]["Enums"]["order_status"]
+          refund_minor: number | null
+          requested_refund_minor: number | null
+          resolution: string | null
+          status: Database["public"]["Enums"]["dispute_status"]
+          updated_at: string
+        }
+        Insert: {
+          kind: Database["public"]["Enums"]["dispute_kind"]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          description: string
+          dispute_number?: string
+          fault?: string | null
+          id?: string
+          opened_by: string
+          opened_by_role: string
+          order_id: string
+          prior_order_status: Database["public"]["Enums"]["order_status"]
+          refund_minor?: number | null
+          requested_refund_minor?: number | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"]
+          updated_at?: string
+        }
+        Update: {
+          kind?: Database["public"]["Enums"]["dispute_kind"]
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          description?: string
+          dispute_number?: string
+          fault?: string | null
+          id?: string
+          opened_by?: string
+          opened_by_role?: string
+          order_id?: string
+          prior_order_status?: Database["public"]["Enums"]["order_status"]
+          refund_minor?: number | null
+          requested_refund_minor?: number | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_messages: {
+        Row: {
+          author_id: string | null
+          author_role: string
+          body: string
+          created_at: string
+          dispute_id: string
+          id: number
+        }
+        Insert: {
+          author_id?: string | null
+          author_role: string
+          body: string
+          created_at?: string
+          dispute_id: string
+          id?: never
+        }
+        Update: {
+          author_id?: string | null
+          author_role?: string
+          body?: string
+          created_at?: string
+          dispute_id?: string
+          id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_messages_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       escrow_accounts: {
         Row: {
           amount_minor: number
@@ -520,6 +787,7 @@ export type Database = {
           intent_id: string
           order_id: string
           refunded_at: string | null
+          refunded_minor: number
           released_at: string | null
           seller_net_minor: number
           status: Database["public"]["Enums"]["escrow_status"]
@@ -534,6 +802,7 @@ export type Database = {
           intent_id: string
           order_id: string
           refunded_at?: string | null
+          refunded_minor?: number
           released_at?: string | null
           seller_net_minor: number
           status?: Database["public"]["Enums"]["escrow_status"]
@@ -548,6 +817,7 @@ export type Database = {
           intent_id?: string
           order_id?: string
           refunded_at?: string | null
+          refunded_minor?: number
           released_at?: string | null
           seller_net_minor?: number
           status?: Database["public"]["Enums"]["escrow_status"]
@@ -856,6 +1126,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ledger_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_deliveries: {
+        Row: {
+          arrived_at: string | null
+          carrier_id: string
+          completed_at: string | null
+          confirmation_method: string | null
+          created_at: string
+          order_id: string
+          picked_up_at: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          carrier_id: string
+          completed_at?: string | null
+          confirmation_method?: string | null
+          created_at?: string
+          order_id: string
+          picked_up_at?: string
+        }
+        Update: {
+          arrived_at?: string | null
+          carrier_id?: string
+          completed_at?: string | null
+          confirmation_method?: string | null
+          created_at?: string
+          order_id?: string
+          picked_up_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_deliveries_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_deliveries_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
@@ -1533,6 +1848,86 @@ export type Database = {
         Relationships: [
         ]
       }
+      reviews: {
+        Row: {
+          carrier_id: string | null
+          comment: string | null
+          created_at: string
+          hidden_reason: string | null
+          id: string
+          is_hidden: boolean
+          order_id: string
+          rating: number
+          reply: string | null
+          replied_at: string | null
+          reviewer_id: string
+          reviewer_label: string
+          seller_business_id: string | null
+          subject_kind: string
+        }
+        Insert: {
+          carrier_id?: string | null
+          comment?: string | null
+          created_at?: string
+          hidden_reason?: string | null
+          id?: string
+          is_hidden?: boolean
+          order_id: string
+          rating: number
+          reply?: string | null
+          replied_at?: string | null
+          reviewer_id: string
+          reviewer_label: string
+          seller_business_id?: string | null
+          subject_kind: string
+        }
+        Update: {
+          carrier_id?: string | null
+          comment?: string | null
+          created_at?: string
+          hidden_reason?: string | null
+          id?: string
+          is_hidden?: boolean
+          order_id?: string
+          rating?: number
+          reply?: string | null
+          replied_at?: string | null
+          reviewer_id?: string
+          reviewer_label?: string
+          seller_business_id?: string | null
+          subject_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_seller_business_id_fkey"
+            columns: ["seller_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           business_id: string
@@ -1857,6 +2252,40 @@ export type Database = {
           },
         ]
       }
+      trust_stats: {
+        Row: {
+          cancelled_by_subject: number
+          completed_orders: number
+          disputes_upheld: number
+          rating_sum: number
+          reviews_count: number
+          subject_id: string
+          subject_kind: string
+          updated_at: string
+        }
+        Insert: {
+          cancelled_by_subject?: number
+          completed_orders?: number
+          disputes_upheld?: number
+          rating_sum?: number
+          reviews_count?: number
+          subject_id: string
+          subject_kind: string
+          updated_at?: string
+        }
+        Update: {
+          cancelled_by_subject?: number
+          completed_orders?: number
+          disputes_upheld?: number
+          rating_sum?: number
+          reviews_count?: number
+          subject_id?: string
+          subject_kind?: string
+          updated_at?: string
+        }
+        Relationships: [
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -1970,6 +2399,54 @@ export type Database = {
           p_status: Database["public"]["Enums"]["business_status"]
           p_verification: Database["public"]["Enums"]["business_verification_status"]
         }
+        Returns: undefined
+      }
+      add_dispute_message: {
+        Args: { p_body: string; p_dispute: string }
+        Returns: undefined
+      }
+      admin_hide_review: {
+        Args: { p_hidden: boolean; p_reason?: string; p_review: string }
+        Returns: boolean
+      }
+      admin_list_reviews: {
+        Args: { p_limit?: number }
+        Returns: { comment: string | null; created_at: string; hidden_reason: string | null; id: string; is_hidden: boolean; order_number: string; rating: number; reply: string | null; reviewer_label: string; subject_kind: string; subject_name: string | null }[]
+      }
+      admin_resolve_dispute: {
+        Args: { p_dispute: string; p_fault?: string; p_note: string; p_outcome: string; p_refund_minor?: number }
+        Returns: string
+      }
+      admin_start_dispute_review: {
+        Args: { p_dispute: string }
+        Returns: boolean
+      }
+      buyer_confirm_delivery: {
+        Args: { p_order: string }
+        Returns: boolean
+      }
+      cancel_unpaid_order: {
+        Args: { p_order: string; p_reason?: string }
+        Returns: boolean
+      }
+      carrier_confirm_delivery: {
+        Args: { p_code: string; p_order: string }
+        Returns: string
+      }
+      carrier_mark_arrived: {
+        Args: { p_note?: string; p_order: string }
+        Returns: undefined
+      }
+      carrier_mark_picked_up: {
+        Args: { p_note?: string; p_order: string }
+        Returns: undefined
+      }
+      carrier_post_checkpoint: {
+        Args: { p_lat?: number; p_lng?: number; p_note?: string; p_order: string }
+        Returns: undefined
+      }
+      carrier_report_delivery_failed: {
+        Args: { p_order: string; p_reason: string }
         Returns: undefined
       }
       bootstrap_admin: { Args: { p_phone: string }; Returns: string }
@@ -2088,6 +2565,18 @@ export type Database = {
         Args: { p_failure?: string; p_provider_txn_id?: string; p_status: Database["public"]["Enums"]["payment_status"]; p_txn: string }
         Returns: undefined
       }
+      open_dispute: {
+        Args: { p_description: string; p_kind: Database["public"]["Enums"]["dispute_kind"]; p_order: string; p_requested_refund_minor?: number }
+        Returns: string
+      }
+      sweep_overdue_orders: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      order_review_status: {
+        Args: { p_order: string }
+        Returns: { comment: string | null; created_at: string; rating: number; reply: string | null; subject_kind: string }[]
+      }
       place_orders: {
         Args: {
           p_address: string
@@ -2127,6 +2616,26 @@ export type Database = {
       set_exchange_rate: {
         Args: { p_base: Database["public"]["Enums"]["currency_code"]; p_note?: string; p_quote: Database["public"]["Enums"]["currency_code"]; p_rate: number }
         Returns: undefined
+      }
+      regenerate_delivery_code: {
+        Args: { p_order: string }
+        Returns: undefined
+      }
+      register_dispute_evidence: {
+        Args: { p_caption?: string; p_dispute: string; p_file_name: string; p_mime: string; p_path: string; p_size: number }
+        Returns: string
+      }
+      reply_to_review: {
+        Args: { p_reply: string; p_review: string }
+        Returns: undefined
+      }
+      submit_review: {
+        Args: { p_comment?: string; p_order: string; p_rating: number; p_subject: string }
+        Returns: string
+      }
+      withdraw_dispute: {
+        Args: { p_dispute: string; p_note?: string }
+        Returns: boolean
       }
       set_default_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
@@ -2221,6 +2730,16 @@ export type Database = {
         | "rejected"
         | "suspended"
       currency_code: "USD" | "LRD"
+      dispute_kind:
+        | "missing_items"
+        | "damaged_goods"
+        | "incorrect_quantity"
+        | "incorrect_product"
+        | "delivery_failure"
+        | "payment_issue"
+        | "carrier_issue"
+        | "seller_issue"
+      dispute_status: "open" | "under_review" | "resolved" | "rejected" | "refunded" | "partial_refund"
       escrow_status:
         | "held"
         | "released"
@@ -2447,6 +2966,17 @@ export const Constants = {
         "suspended",
       ],
       currency_code: ["USD", "LRD"],
+      dispute_kind: [
+        "missing_items",
+        "damaged_goods",
+        "incorrect_quantity",
+        "incorrect_product",
+        "delivery_failure",
+        "payment_issue",
+        "carrier_issue",
+        "seller_issue",
+      ],
+      dispute_status: ["open", "under_review", "resolved", "rejected", "refunded", "partial_refund"],
       escrow_status: [
         "held",
         "released",
