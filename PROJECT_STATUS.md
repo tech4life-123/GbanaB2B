@@ -1,10 +1,10 @@
 # Project status
 
-_Last updated: 2026-09-30 (Phase 4 complete)_
+_Last updated: 2026-09-30 (Phase 5 complete, test provider only)_
 
 ## Current phase
 
-**Phase 4 — Freight exchange: complete.** Stopped at the Phase 4 boundary. Next: **Phase 5 — Financial engine** (escrow ledger, MoMo/Orange Money adapters from verified provider docs, exchange rates, payouts).
+**Phase 5 — Financial engine: complete (built against a test provider).** MTN MoMo and Orange Money are **not connected** — they need provider API access and credentials. Stopped at the Phase 5 boundary. Next: **Phase 6 — Delivery & trust** (delivery lifecycle, secure delivery code, disputes, refunds with evidence, reviews).
 
 ## Verification (all passing)
 
@@ -12,14 +12,23 @@ _Last updated: 2026-09-30 (Phase 4 complete)_
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
-| `npm test` | ✅ 84 unit tests — adds the order state machine (checked against the database's allow-list for every actor), fee rounding and cart grouping |
-| `npm run test:db` | ✅ 11 migrations apply cleanly on PostgreSQL 16; 269 RLS/workflow assertions (50 + 56 + 73 + 90 for Phase 4) |
+| `npm test` | ✅ 93 unit tests — adds the order state machine (checked against the database's allow-list for every actor), fee rounding and cart grouping |
+| `npm run test:db` | ✅ 12 migrations apply cleanly on PostgreSQL 16; 378 RLS/workflow assertions (… + 109 for Phase 5) |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
-| Live Supabase | ✅ all 11 migrations applied; live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
+| Live Supabase | ✅ all 12 migrations applied; live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
 | Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
 | Visual check | ✅ order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
 
 ## Completed
+
+### Phase 5 — Financial engine
+- **Buyer:** after booking a carrier, pay the order total from the order page (amount comes from the database, one reference per form so a double-tap can't double-charge); waiting state; escrow card; `/buyer/payments`
+- **Provider layer:** `PaymentProvider` interface, **test provider** (signed webhooks, no real money, switchable by admin), MTN/Orange placeholders that refuse to run; webhook route with signature check, body cap and idempotency; status-query reconciliation
+- **Escrow + ledger:** escrow per order, append-only balanced double-entry ledger, platform fee/seller/carrier shares fixed at funding; admin release and full refund (written reason, audited, idempotent)
+- **Payouts:** seller `/seller/payouts` and carrier `/carrier/earnings` views; admin `/admin/finance` (balances, needs-attention list, exchange rates), `/admin/finance/payments`, `/admin/finance/payouts` (start → record result with provider reference)
+- **Config:** `payments.*` settings, exchange-rate history (admin, audited). `SANDBOX_WEBHOOK_SECRET` set on Vercel (server only)
+- Docs: `docs/database/payments.md`, `docs/payments/adding-a-provider.md`, ADR 0014, ADR 0015, SECURITY.md threats
+
 
 ### Phase 4 — Freight exchange
 - **Carrier:** onboarding (profile, coverage counties, vehicles, private document upload, submit for review), load board filtered to eligible loads, load page with sealed bid form, My bids
@@ -99,6 +108,14 @@ App shell, design system (`/design-system`), PWA, env architecture, phone OTP au
 5. When to allow multiple businesses per person / team invitations (ADR 0007).
 6. Production domain name.
 
-## Next phase — Phase 5: Financial engine
+## Known limits (Phase 5)
 
-Escrow ledger, payment adapters (only from verified provider docs), exchange rates, fees and payouts. AI never approves payments or releases.
+- **Test provider is ON** (`payments.sandbox_enabled`). Turn it off before real launch. No real money moves.
+- Payouts and refunds are recorded by an admin after sending; automated disbursement waits for real provider APIs.
+- Escrow release is an admin decision until Phase 6's delivery code. Partial refunds arrive with disputes.
+- Orders stuck in `awaiting_payment` can't be cancelled yet (Phase 6 adds expiry).
+- Webhook endpoint has no rate limiting yet (Phase 8).
+
+## Next phase — Phase 6: Delivery & trust
+
+Delivery lifecycle and tracking, secure delivery code that releases escrow, disputes with private evidence, refunds, reviews and ratings.

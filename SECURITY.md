@@ -38,8 +38,11 @@ Security is a product requirement. This document is the threat model and the con
 | Overselling | Stock is reserved atomically on confirmation (`quantity_available >= qty`); cancelling restores it | ✅ tested |
 | Stale-page double action | `expected_version` optimistic concurrency on transitions | ✅ tested |
 | Competitor sees bids | RLS own-rows-only + tests via API, nested relations, Realtime | 🔜 Phase 4 |
-| Fake payment success | Provider interface: success only from verified webhook/status query; idempotency keys | 🔜 Phase 5 |
-| Double escrow release | Transactional, idempotent release function + state machine | 🔜 Phase 5/6 |
+| Fake payment success | Only `apply_provider_event` (service role) can fund escrow, and only after the provider adapter verified the signature; browsers can't call it. Amount, currency, provider and reference re-checked in the database; replays stored once | ✅ tested |
+| Forged / tampered / replayed webhook | HMAC verified with timing-safe compare before anything is stored; invalid requests dropped and logged; duplicate event ids are no-ops; body size capped | ✅ tested |
+| Test provider used in production | `payments.sandbox_enabled` setting (admin-only, audited) + server secret; UI labels it; real providers stay off until verified adapters exist | ✅ |
+| Money edited after the fact | Ledger is append-only (update/delete/truncate blocked) and every entry group must balance at commit | ✅ tested |
+| Double escrow release / refund after release | `admin_release_escrow` and `admin_refund_escrow` lock the escrow row; a second call is a no-op; refunded funds can't be released and vice versa | ✅ tested |
 | Delivery code guessing | Hashed, expiring, single-use, attempt-limited codes | 🔜 Phase 6 |
 | Document exposure | Private storage buckets; signed URLs for admins only (listing photos are deliberately public — ADR 0008) | 🔜 Phase 4 |
 

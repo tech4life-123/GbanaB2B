@@ -36,7 +36,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 4;
+export const CURRENT_PHASE = 5;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -65,7 +65,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "listings", label: "Listings", icon: Package, phase: 2, summary: "Create wholesale listings with MOQs, quantity tiers, weights and packaging.", primary: true },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Accept orders, prepare stock and hand over to the selected carrier.", primary: true },
     { segment: "business", label: "Business", icon: Building2, phase: 2, summary: "Your business profile and verification status." },
-    { segment: "payouts", label: "Payouts", icon: Banknote, phase: 5, summary: "Earnings released from escrow, platform fees and payout history.", primary: true },
+    { segment: "payouts", label: "Payouts", icon: Banknote, phase: 5, summary: "Earnings released from escrow, platform fees and payout history." },
   ],
   carrier: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your hauling at a glance.", primary: true },

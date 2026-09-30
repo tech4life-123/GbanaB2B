@@ -509,6 +509,104 @@ export type Database = {
           },
         ]
       }
+      escrow_accounts: {
+        Row: {
+          amount_minor: number
+          carrier_net_minor: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          fee_minor: number
+          funded_at: string
+          id: string
+          intent_id: string
+          order_id: string
+          refunded_at: string | null
+          released_at: string | null
+          seller_net_minor: number
+          status: Database["public"]["Enums"]["escrow_status"]
+        }
+        Insert: {
+          amount_minor: number
+          carrier_net_minor: number
+          currency: Database["public"]["Enums"]["currency_code"]
+          fee_minor: number
+          funded_at?: string
+          id?: string
+          intent_id: string
+          order_id: string
+          refunded_at?: string | null
+          released_at?: string | null
+          seller_net_minor: number
+          status?: Database["public"]["Enums"]["escrow_status"]
+        }
+        Update: {
+          amount_minor?: number
+          carrier_net_minor?: number
+          currency?: Database["public"]["Enums"]["currency_code"]
+          fee_minor?: number
+          funded_at?: string
+          id?: string
+          intent_id?: string
+          order_id?: string
+          refunded_at?: string | null
+          released_at?: string | null
+          seller_net_minor?: number
+          status?: Database["public"]["Enums"]["escrow_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_accounts_intent_id_fkey"
+            columns: ["intent_id"]
+            isOneToOne: false
+            referencedRelation: "payment_intents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_accounts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchange_rates: {
+        Row: {
+          base: Database["public"]["Enums"]["currency_code"]
+          effective_at: string
+          id: number
+          note: string | null
+          quote: Database["public"]["Enums"]["currency_code"]
+          rate: number
+          set_by: string | null
+        }
+        Insert: {
+          base: Database["public"]["Enums"]["currency_code"]
+          effective_at?: string
+          id?: never
+          note?: string | null
+          quote: Database["public"]["Enums"]["currency_code"]
+          rate: number
+          set_by?: string | null
+        }
+        Update: {
+          base?: Database["public"]["Enums"]["currency_code"]
+          effective_at?: string
+          id?: never
+          note?: string | null
+          quote?: Database["public"]["Enums"]["currency_code"]
+          rate?: number
+          set_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_rates_set_by_fkey"
+            columns: ["set_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freight_bids: {
         Row: {
           amount_minor: number
@@ -702,6 +800,62 @@ export type Database = {
           },
           {
             foreignKeyName: "freight_rfqs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          account: string
+          amount_minor: number
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          direction: string
+          entry_group: string
+          id: number
+          kind: string
+          memo: string | null
+          order_id: string | null
+          payment_txn_id: string | null
+          payout_id: string | null
+          refund_id: string | null
+        }
+        Insert: {
+          account: string
+          amount_minor: number
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          direction: string
+          entry_group: string
+          id?: never
+          kind: string
+          memo?: string | null
+          order_id?: string | null
+          payment_txn_id?: string | null
+          payout_id?: string | null
+          refund_id?: string | null
+        }
+        Update: {
+          account?: string
+          amount_minor?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          direction?: string
+          entry_group?: string
+          id?: never
+          kind?: string
+          memo?: string | null
+          order_id?: string | null
+          payment_txn_id?: string | null
+          payout_id?: string | null
+          refund_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
@@ -926,6 +1080,123 @@ export type Database = {
           },
         ]
       }
+      payment_intents: {
+        Row: {
+          amount_minor: number
+          buyer_id: string
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          expires_at: string
+          fx_usd_lrd: number | null
+          id: string
+          order_id: string
+          status: Database["public"]["Enums"]["payment_intent_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          buyer_id: string
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          expires_at: string
+          fx_usd_lrd?: number | null
+          id?: string
+          order_id: string
+          status?: Database["public"]["Enums"]["payment_intent_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          buyer_id?: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          expires_at?: string
+          fx_usd_lrd?: number | null
+          id?: string
+          order_id?: string
+          status?: Database["public"]["Enums"]["payment_intent_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_intents_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_intents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount_minor: number
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          failure_reason: string | null
+          id: string
+          idempotency_key: string
+          intent_id: string
+          order_id: string
+          payer_msisdn: string
+          provider: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          failure_reason?: string | null
+          id?: string
+          idempotency_key: string
+          intent_id: string
+          order_id: string
+          payer_msisdn: string
+          provider: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          failure_reason?: string | null
+          id?: string
+          idempotency_key?: string
+          intent_id?: string
+          order_id?: string
+          payer_msisdn?: string
+          provider?: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_intent_id_fkey"
+            columns: ["intent_id"]
+            isOneToOne: false
+            referencedRelation: "payment_intents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           description: string
@@ -963,6 +1234,82 @@ export type Database = {
             columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount_minor: number
+          attempts: number
+          carrier_id: string | null
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn: string | null
+          failure_reason: string | null
+          id: string
+          order_id: string
+          provider: Database["public"]["Enums"]["payment_provider_id"] | null
+          provider_ref: string | null
+          recipient: Database["public"]["Enums"]["payout_recipient"]
+          seller_business_id: string | null
+          status: Database["public"]["Enums"]["payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          attempts?: number
+          carrier_id?: string | null
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn?: string | null
+          failure_reason?: string | null
+          id?: string
+          order_id: string
+          provider?: Database["public"]["Enums"]["payment_provider_id"] | null
+          provider_ref?: string | null
+          recipient: Database["public"]["Enums"]["payout_recipient"]
+          seller_business_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          attempts?: number
+          carrier_id?: string | null
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn?: string | null
+          failure_reason?: string | null
+          id?: string
+          order_id?: string
+          provider?: Database["public"]["Enums"]["payment_provider_id"] | null
+          provider_ref?: string | null
+          recipient?: Database["public"]["Enums"]["payout_recipient"]
+          seller_business_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_seller_business_id_fkey"
+            columns: ["seller_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
@@ -1140,6 +1487,52 @@ export type Database = {
           },
         ]
       }
+      provider_events: {
+        Row: {
+          amount_minor: number | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          event_id: string
+          id: number
+          outcome: string | null
+          payload: Json
+          processed_at: string | null
+          provider: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id: string | null
+          received_at: string
+          reference: string
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        Insert: {
+          amount_minor?: number | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          event_id: string
+          id?: never
+          outcome?: string | null
+          payload?: Json
+          processed_at?: string | null
+          provider: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id?: string | null
+          received_at?: string
+          reference: string
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        Update: {
+          amount_minor?: number | null
+          currency?: Database["public"]["Enums"]["currency_code"] | null
+          event_id?: string
+          id?: never
+          outcome?: string | null
+          payload?: Json
+          processed_at?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider_id"]
+          provider_txn_id?: string | null
+          received_at?: string
+          reference?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Relationships: [
+        ]
+      }
       products: {
         Row: {
           business_id: string
@@ -1296,6 +1689,79 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          amount_minor: number
+          buyer_id: string
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn: string
+          escrow_id: string
+          failure_reason: string | null
+          id: string
+          order_id: string
+          provider_ref: string | null
+          reason: string
+          requested_by: string | null
+          status: Database["public"]["Enums"]["refund_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          buyer_id: string
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn: string
+          escrow_id: string
+          failure_reason?: string | null
+          id?: string
+          order_id: string
+          provider_ref?: string | null
+          reason: string
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          buyer_id?: string
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          destination_msisdn?: string
+          escrow_id?: string
+          failure_reason?: string | null
+          id?: string
+          order_id?: string
+          provider_ref?: string | null
+          reason?: string
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_escrow_id_fkey"
+            columns: ["escrow_id"]
+            isOneToOne: false
+            referencedRelation: "escrow_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       proforma_invoices: {
         Row: {
@@ -1486,6 +1952,15 @@ export type Database = {
           },
         ]
       }
+      ledger_balances: {
+        Row: {
+          account: string | null
+          balance_minor: number | null
+          currency: Database["public"]["Enums"]["currency_code"] | null
+          entries: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_review_business: {
@@ -1518,6 +1993,30 @@ export type Database = {
       carrier_can_see_rfq: {
         Args: { p_rfq: string }
         Returns: boolean
+      }
+      admin_begin_payout: {
+        Args: { p_msisdn: string; p_payout: string; p_provider: Database["public"]["Enums"]["payment_provider_id"] }
+        Returns: boolean
+      }
+      admin_finish_payout: {
+        Args: { p_failure?: string; p_payout: string; p_provider_ref?: string; p_success: boolean }
+        Returns: boolean
+      }
+      admin_mark_refund: {
+        Args: { p_failure?: string; p_paid: boolean; p_provider_ref?: string; p_refund: string }
+        Returns: boolean
+      }
+      admin_refund_escrow: {
+        Args: { p_order: string; p_reason: string }
+        Returns: string
+      }
+      admin_release_escrow: {
+        Args: { p_note: string; p_order: string }
+        Returns: boolean
+      }
+      admin_retry_refund: {
+        Args: { p_refund: string }
+        Returns: undefined
       }
       can_view_order: { Args: { p_order: string }; Returns: boolean }
       can_write_business_object: { Args: { p_name: string }; Returns: boolean }
@@ -1565,6 +2064,10 @@ export type Database = {
         Args: { p_rfq: string }
         Returns: boolean
       }
+      apply_provider_event: {
+        Args: { p_amount_minor?: number; p_currency?: Database["public"]["Enums"]["currency_code"]; p_event_id: string; p_payload?: Json; p_provider: Database["public"]["Enums"]["payment_provider_id"]; p_provider_txn_id?: string; p_reference: string; p_status: Database["public"]["Enums"]["payment_status"] }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       is_business_member: { Args: { p_business: string }; Returns: boolean }
       is_verified_carrier: {
@@ -1576,6 +2079,14 @@ export type Database = {
       owns_carrier_object: {
         Args: { p_name: string }
         Returns: boolean
+      }
+      provider_enabled: {
+        Args: { p_provider: Database["public"]["Enums"]["payment_provider_id"] }
+        Returns: boolean
+      }
+      record_payment_attempt: {
+        Args: { p_failure?: string; p_provider_txn_id?: string; p_status: Database["public"]["Enums"]["payment_status"]; p_txn: string }
+        Returns: undefined
       }
       place_orders: {
         Args: {
@@ -1613,9 +2124,17 @@ export type Database = {
         Args: { p_bid: string; p_expected_version?: number }
         Returns: string
       }
+      set_exchange_rate: {
+        Args: { p_base: Database["public"]["Enums"]["currency_code"]; p_note?: string; p_quote: Database["public"]["Enums"]["currency_code"]; p_rate: number }
+        Returns: undefined
+      }
       set_default_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
+      }
+      start_payment: {
+        Args: { p_idempotency_key: string; p_msisdn: string; p_order: string; p_provider: Database["public"]["Enums"]["payment_provider_id"] }
+        Returns: string
       }
       submit_carrier_for_review: {
         Args: never
@@ -1702,6 +2221,10 @@ export type Database = {
         | "rejected"
         | "suspended"
       currency_code: "USD" | "LRD"
+      escrow_status:
+        | "held"
+        | "released"
+        | "refunded"
       freight_bid_status:
         | "submitted"
         | "withdrawn"
@@ -1713,6 +2236,31 @@ export type Database = {
         | "awarded"
         | "cancelled"
         | "expired"
+      payment_intent_status:
+        | "requires_payment"
+        | "processing"
+        | "succeeded"
+        | "cancelled"
+        | "expired"
+      payment_provider_id:
+        | "sandbox"
+        | "mtn_momo_lr"
+        | "orange_money_lr"
+      payment_status:
+        | "initiated"
+        | "pending"
+        | "succeeded"
+        | "failed"
+        | "cancelled"
+        | "expired"
+      payout_recipient:
+        | "seller"
+        | "carrier"
+      payout_status:
+        | "pending"
+        | "initiated"
+        | "paid"
+        | "failed"
       order_status:
         | "draft"
         | "pending_seller"
@@ -1762,6 +2310,10 @@ export type Database = {
         | "tipper"
         | "container_truck"
         | "other"
+      refund_status:
+        | "pending"
+        | "paid"
+        | "failed"
       role_status: "active" | "revoked"
     }
     CompositeTypes: {
@@ -1895,6 +2447,11 @@ export const Constants = {
         "suspended",
       ],
       currency_code: ["USD", "LRD"],
+      escrow_status: [
+        "held",
+        "released",
+        "refunded",
+      ],
       freight_bid_status: [
         "submitted",
         "withdrawn",
@@ -1907,6 +2464,36 @@ export const Constants = {
         "awarded",
         "cancelled",
         "expired",
+      ],
+      payment_intent_status: [
+        "requires_payment",
+        "processing",
+        "succeeded",
+        "cancelled",
+        "expired",
+      ],
+      payment_provider_id: [
+        "sandbox",
+        "mtn_momo_lr",
+        "orange_money_lr",
+      ],
+      payment_status: [
+        "initiated",
+        "pending",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "expired",
+      ],
+      payout_recipient: [
+        "seller",
+        "carrier",
+      ],
+      payout_status: [
+        "pending",
+        "initiated",
+        "paid",
+        "failed",
       ],
       order_status: [
         "draft",
@@ -1947,6 +2534,11 @@ export const Constants = {
         "tipper",
         "container_truck",
         "other",
+      ],
+      refund_status: [
+        "pending",
+        "paid",
+        "failed",
       ],
       role_status: ["active", "revoked"],
     },

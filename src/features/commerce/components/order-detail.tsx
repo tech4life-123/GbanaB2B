@@ -25,6 +25,7 @@ export function OrderDetailView({
   cancelWindowMinutes,
   notice,
   freight,
+  payment,
 }: {
   order: OrderDetail;
   perspective: OrderActor;
@@ -33,6 +34,8 @@ export function OrderDetailView({
   notice?: React.ReactNode;
   /** Freight section (Phase 4), rendered under the status card. */
   freight?: React.ReactNode;
+  /** Payment and escrow section (Phase 5), rendered under freight. */
+  payment?: React.ReactNode;
 }) {
   const meta = ORDER_STATUS[order.status];
   const actions = availableActions(order.status, perspective, { placedAt: order.placed_at, cancelWindowMinutes });
@@ -93,6 +96,7 @@ export function OrderDetailView({
       </Card>
 
       {freight}
+      {payment}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="space-y-6">

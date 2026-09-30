@@ -23,6 +23,9 @@ const serverShape = {
   ORANGE_API_KEY: z.string(),
   ORANGE_API_SECRET: z.string(),
 
+  // Test-provider webhook signing secret (random, server-only). Needed only while the sandbox provider is enabled.
+  SANDBOX_WEBHOOK_SECRET: z.string().min(32),
+
   WEB_PUSH_PRIVATE_KEY: z.string(),
   WEB_PUSH_SUBJECT: z.string(),
 

@@ -6,6 +6,8 @@ import { getCommerceSettings, getOrder } from "@/features/commerce/queries";
 import { requireRole } from "@/lib/auth/session";
 import { FreightPanel } from "@/features/freight/components/freight-panel";
 import { getOrderFreight } from "@/features/freight/queries";
+import { PaymentPanel } from "@/features/payments/components/payment-panel";
+import { getOrderPayment, getPaymentMethods } from "@/features/payments/queries";
 
 
 export const metadata: Metadata = { title: "Order" };
@@ -15,7 +17,7 @@ export default async function BuyerOrderPage({ params, searchParams }: { params:
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const [order, settings] = await Promise.all([getOrder(id), getCommerceSettings()]);
   if (!order || order.buyer_id !== viewer.id) notFound();
-  const freight = await getOrderFreight(order.id);
+  const [freight, payment, methods] = await Promise.all([getOrderFreight(order.id), getOrderPayment(order.id, { withLedger: false }), getPaymentMethods()]);
   return (
     <OrderDetailView
       order={order}
@@ -27,6 +29,15 @@ export default async function BuyerOrderPage({ params, searchParams }: { params:
           perspective="buyer"
           freight={freight}
           order={{ id: order.id, status: order.status, version: order.version, currency: order.currency, subtotal_minor: order.subtotal_minor, total_weight_g: order.total_weight_g, itemCount: order.item_count, pieces: order.items.reduce((n, i) => n + i.quantity, 0) }}
+        />
+      }
+      payment={
+        <PaymentPanel
+          perspective="buyer"
+          payment={payment}
+          methods={methods}
+          buyerPhone={order.buyer_snapshot.phone ?? ""}
+          order={{ id: order.id, status: order.status, currency: order.currency, total_minor: order.total_minor }}
         />
       }
       notice={

@@ -2,7 +2,7 @@
 
 ## Status
 
-Phase 1 defines the contract only: `src/lib/payments/types.ts`. **No payment is processed, simulated or displayed as successful anywhere in the app.**
+Phase 5 is built: provider interface, a clearly labelled **test provider** (`providers/sandbox.ts`, no real money, signed webhooks), refusing placeholders for MTN and Orange (`providers/unconfigured.ts`), the webhook route `/api/webhooks/payments/[provider]`, escrow, the ledger, payouts, refunds and exchange rates. **MTN and Orange are NOT connected** — see [adding-a-provider.md](adding-a-provider.md). Schema: [../database/payments.md](../database/payments.md).
 
 ## Principles
 
@@ -14,7 +14,7 @@ Phase 1 defines the contract only: `src/lib/payments/types.ts`. **No payment is 
 - Amounts: integer minor units + currency. LRD/USD conversions store the rate used.
 - Every monetary event writes append-only ledger entries traceable order → payment → escrow → ledger → payout.
 
-## Open items before Phase 5
+## Open items before real money moves
 
 - Obtain merchant/API access and documentation from Lonestar Cell MTN (MoMo) and Orange Liberia.
 - Confirm webhook authentication method, settlement timing, fees, and reversal/refund support per provider.

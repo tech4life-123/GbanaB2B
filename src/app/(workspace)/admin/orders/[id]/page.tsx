@@ -7,6 +7,8 @@ import { getMyBusiness } from "@/features/seller/queries";
 import { requireRole } from "@/lib/auth/session";
 import { FreightPanel } from "@/features/freight/components/freight-panel";
 import { getOrderFreight } from "@/features/freight/queries";
+import { PaymentPanel } from "@/features/payments/components/payment-panel";
+import { getOrderPayment, getPaymentMethods } from "@/features/payments/queries";
 
 
 export const metadata: Metadata = { title: "Order" };
@@ -16,7 +18,7 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const [order, settings] = await Promise.all([getOrder(id), getCommerceSettings()]);
   if (!order) notFound();
-  const freight = await getOrderFreight(order.id);
+  const [freight, payment, methods] = await Promise.all([getOrderFreight(order.id), getOrderPayment(order.id, { withLedger: true }), getPaymentMethods()]);
   // The database treats an admin who is also this order's seller or buyer as that party.
   const mine = viewer.roles.includes("seller") ? await getMyBusiness() : null;
   const party = mine?.id === order.seller_business_id ? "seller" : order.buyer_id === viewer.id ? "buyer" : null;
@@ -31,6 +33,15 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           perspective={party ?? "admin"}
           freight={freight}
           order={{ id: order.id, status: order.status, version: order.version, currency: order.currency, subtotal_minor: order.subtotal_minor, total_weight_g: order.total_weight_g, itemCount: order.item_count, pieces: order.items.reduce((n, i) => n + i.quantity, 0) }}
+        />
+      }
+      payment={
+        <PaymentPanel
+          perspective={party ?? "admin"}
+          payment={payment}
+          methods={methods}
+          buyerPhone={order.buyer_snapshot.phone ?? ""}
+          order={{ id: order.id, status: order.status, currency: order.currency, total_minor: order.total_minor }}
         />
       }
       notice={

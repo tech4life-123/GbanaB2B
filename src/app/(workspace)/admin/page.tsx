@@ -16,13 +16,15 @@ export const metadata: Metadata = { title: "Admin" };
 export default async function AdminOverviewPage() {
   const [overview, audit, settings] = await Promise.all([getPlatformOverview(), listRecentAudit(6), listSettings()]);
   const fee = settings.find((s) => s.key === "commerce.platform_fee_bps");
+  const sandboxOn = String(settings.find((s) => s.key === "payments.sandbox_enabled")?.value) === "1";
   const nf = new Intl.NumberFormat("en-US");
 
   const systems = [
     { label: "Database & auth", ok: true, detail: "Supabase connected" },
     { label: "Privileged server key", ok: Boolean(getSupabaseSecretKey()), detail: getSupabaseSecretKey() ? "Configured (server only)" : "Not set — webhooks & jobs unavailable" },
-    { label: "MTN Mobile Money", ok: false, detail: "Adapter arrives in phase 5" },
-    { label: "Orange Money", ok: false, detail: "Adapter arrives in phase 5" },
+    { label: "Test payment provider", ok: sandboxOn, detail: sandboxOn ? "ON — no real money moves" : "Off" },
+    { label: "MTN Mobile Money", ok: false, detail: "Not connected — needs provider API access" },
+    { label: "Orange Money", ok: false, detail: "Not connected — needs provider API access" },
   ];
 
   return (

@@ -16,7 +16,7 @@
  */
 import type { Money } from "@/lib/money/currency";
 
-export type PaymentProviderId = "mtn_momo_lr" | "orange_money_lr";
+export type PaymentProviderId = "sandbox" | "mtn_momo_lr" | "orange_money_lr";
 
 export type ProviderPaymentStatus =
   | "PENDING"
@@ -43,6 +43,8 @@ export interface CollectionResult {
 }
 
 export interface VerifiedWebhookEvent {
+  /** Provider's unique id for this message — replays with the same id are ignored. */
+  eventId: string;
   providerTransactionId: string;
   reference: string;
   status: ProviderPaymentStatus;
@@ -63,6 +65,7 @@ export interface PaymentProvider {
 }
 
 export const PAYMENT_PROVIDERS: Record<PaymentProviderId, { displayName: string; brandHint: string }> = {
+  sandbox: { displayName: "Test payment (no real money)", brandHint: "Development provider" },
   mtn_momo_lr: { displayName: "MTN Mobile Money", brandHint: "Lonestar Cell MTN" },
   orange_money_lr: { displayName: "Orange Money", brandHint: "Orange Liberia" },
 };
