@@ -18,6 +18,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          contact_name: string
+          contact_phone: string
+          county: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          landmark: string | null
+          latitude: number | null
+          longitude: number | null
+          profile_id: string
+          street: string | null
+          town: string
+          updated_at: string
+        }
+        Insert: {
+          contact_name: string
+          contact_phone: string
+          county: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label: string
+          landmark?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          profile_id: string
+          street?: string | null
+          town: string
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string
+          contact_phone?: string
+          county?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          landmark?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          profile_id?: string
+          street?: string | null
+          town?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -171,6 +230,272 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          profile_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          profile_id: string
+          quantity: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          profile_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          id: string
+          line_total_minor: number
+          order_id: string
+          packaging_type: Database["public"]["Enums"]["packaging_type"]
+          product_id: string | null
+          quantity: number
+          sku: string | null
+          tier_max_qty: number | null
+          tier_min_qty: number
+          title: string
+          unit_label: string
+          unit_price_minor: number
+          unit_weight_g: number
+        }
+        Insert: {
+          id?: string
+          line_total_minor: number
+          order_id: string
+          packaging_type: Database["public"]["Enums"]["packaging_type"]
+          product_id?: string | null
+          quantity: number
+          sku?: string | null
+          tier_max_qty?: number | null
+          tier_min_qty: number
+          title: string
+          unit_label: string
+          unit_price_minor: number
+          unit_weight_g: number
+        }
+        Update: {
+          id?: string
+          line_total_minor?: number
+          order_id?: string
+          packaging_type?: Database["public"]["Enums"]["packaging_type"]
+          product_id?: string | null
+          quantity?: number
+          sku?: string | null
+          tier_max_qty?: number | null
+          tier_min_qty?: number
+          title?: string
+          unit_label?: string
+          unit_price_minor?: number
+          unit_weight_g?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_history: {
+        Row: {
+          actor_id: string | null
+          actor_role: string
+          created_at: string
+          from_status: Database["public"]["Enums"]["order_status"] | null
+          id: number
+          note: string | null
+          order_id: string
+          to_status: Database["public"]["Enums"]["order_status"]
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_role: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["order_status"] | null
+          id?: never
+          note?: string | null
+          order_id: string
+          to_status: Database["public"]["Enums"]["order_status"]
+        }
+        Update: {
+          actor_id?: string | null
+          actor_role?: string
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["order_status"] | null
+          id?: never
+          note?: string | null
+          order_id?: string
+          to_status?: Database["public"]["Enums"]["order_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_id: string
+          buyer_note: string | null
+          buyer_snapshot: Json
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          confirmed_at: string | null
+          created_at: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          delivery_address: Json
+          freight_minor: number | null
+          id: string
+          item_count: number
+          order_number: string
+          placed_at: string
+          platform_fee_bps: number
+          platform_fee_minor: number
+          seller_business_id: string
+          seller_snapshot: Json
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal_minor: number
+          total_minor: number
+          total_weight_g: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          buyer_id: string
+          buyer_note?: string | null
+          buyer_snapshot: Json
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          delivery_address: Json
+          freight_minor?: number | null
+          id?: string
+          item_count: number
+          order_number: string
+          placed_at?: string
+          platform_fee_bps: number
+          platform_fee_minor: number
+          seller_business_id: string
+          seller_snapshot: Json
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal_minor: number
+          total_minor: number
+          total_weight_g: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          buyer_id?: string
+          buyer_note?: string | null
+          buyer_snapshot?: Json
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          delivery_address?: Json
+          freight_minor?: number | null
+          id?: string
+          item_count?: number
+          order_number?: string
+          placed_at?: string
+          platform_fee_bps?: number
+          platform_fee_minor?: number
+          seller_business_id?: string
+          seller_snapshot?: Json
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal_minor?: number
+          total_minor?: number
+          total_weight_g?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_seller_business_id_fkey"
+            columns: ["seller_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
@@ -546,6 +871,41 @@ export type Database = {
         }
         Relationships: []
       }
+      proforma_invoices: {
+        Row: {
+          id: string
+          invoice_number: string
+          issued_at: string
+          order_id: string
+          revision: number
+          snapshot: Json
+        }
+        Insert: {
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          order_id: string
+          revision?: number
+          snapshot: Json
+        }
+        Update: {
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          order_id?: string
+          revision?: number
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proforma_invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -654,6 +1014,7 @@ export type Database = {
       }
       bootstrap_admin: { Args: { p_phone: string }; Returns: string }
       can_edit_business: { Args: { p_business: string }; Returns: boolean }
+      can_view_order: { Args: { p_order: string }; Returns: boolean }
       can_write_business_object: { Args: { p_name: string }; Returns: boolean }
       complete_onboarding: {
         Args: {
@@ -673,6 +1034,7 @@ export type Database = {
         }
         Returns: string
       }
+      fee_for: { Args: { p_amount: number; p_bps: number }; Returns: number }
       grant_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -686,7 +1048,16 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_business_member: { Args: { p_business: string }; Returns: boolean }
+      issue_proforma: { Args: { p_order: string }; Returns: string }
       make_slug: { Args: { p_text: string }; Returns: string }
+      place_orders: {
+        Args: {
+          p_address: string
+          p_buyer_business_name?: string
+          p_note?: string
+        }
+        Returns: string[]
+      }
       request_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
@@ -713,6 +1084,23 @@ export type Database = {
       }
       set_default_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
+        Returns: undefined
+      }
+      tier_price: {
+        Args: { p_product: string; p_qty: number }
+        Returns: {
+          max_qty: number
+          min_qty: number
+          unit_price_minor: number
+        }[]
+      }
+      transition_order: {
+        Args: {
+          p_expected_version?: number
+          p_note?: string
+          p_order: string
+          p_to: Database["public"]["Enums"]["order_status"]
+        }
         Returns: undefined
       }
       update_platform_setting: {
@@ -747,6 +1135,24 @@ export type Database = {
         | "verified"
         | "rejected"
       currency_code: "USD" | "LRD"
+      order_status:
+        | "draft"
+        | "pending_seller"
+        | "confirmed"
+        | "fulfilling"
+        | "ready_for_freight"
+        | "freight_requested"
+        | "carrier_selected"
+        | "awaiting_payment"
+        | "paid_escrow"
+        | "in_transit"
+        | "delivered"
+        | "awaiting_confirmation"
+        | "completed"
+        | "cancelled"
+        | "disputed"
+        | "refunded"
+        | "partially_refunded"
       packaging_type:
         | "bag"
         | "sack"
@@ -882,6 +1288,25 @@ export const Constants = {
       business_type: ["importer", "wholesaler", "distributor", "manufacturer", "retailer", "transport"],
       business_verification_status: ["unverified", "pending", "verified", "rejected"],
       currency_code: ["USD", "LRD"],
+      order_status: [
+        "draft",
+        "pending_seller",
+        "confirmed",
+        "fulfilling",
+        "ready_for_freight",
+        "freight_requested",
+        "carrier_selected",
+        "awaiting_payment",
+        "paid_escrow",
+        "in_transit",
+        "delivered",
+        "awaiting_confirmation",
+        "completed",
+        "cancelled",
+        "disputed",
+        "refunded",
+        "partially_refunded",
+      ],
       packaging_type: [
         "bag", "sack", "carton", "box", "crate", "drum", "jerrycan", "bottle", "tin",
         "bale", "bundle", "roll", "pallet", "piece", "other",
