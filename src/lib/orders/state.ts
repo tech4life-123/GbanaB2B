@@ -47,6 +47,10 @@ const ACTORS: Partial<Record<`${OrderStatus}>${OrderStatus}`, readonly OrderActo
   "fulfilling>ready_for_freight": ["seller"],
   "fulfilling>cancelled": ["seller", "admin"],
   "ready_for_freight>cancelled": ["seller", "admin"],
+  // Phase 4: freight_requested and carrier_selected are entered through the
+  // freight workflow (create_freight_rfq / select_freight_bid), not here.
+  "freight_requested>cancelled": ["seller", "admin"],
+  "carrier_selected>cancelled": ["seller", "admin"],
 };
 
 export function canTransition(from: OrderStatus, to: OrderStatus, actor: OrderActor): boolean {
@@ -146,11 +150,21 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: Tone; buye
   ready_for_freight: {
     label: "Ready for pickup",
     tone: "navy",
-    buyerHint: "Packed and waiting for a carrier. Freight booking opens with the freight exchange.",
-    sellerHint: "Packed and waiting. A verified carrier will be booked through the freight exchange.",
+    buyerHint: "Packed and waiting. Request freight so verified carriers can bid to deliver it.",
+    sellerHint: "Packed and waiting. Request freight (or let the buyer do it) so verified carriers can bid.",
   },
-  freight_requested: { label: "Finding carrier", tone: "navy", buyerHint: "Carriers are bidding.", sellerHint: "Carriers are bidding." },
-  carrier_selected: { label: "Carrier booked", tone: "navy", buyerHint: "Carrier selected.", sellerHint: "Carrier selected." },
+  freight_requested: {
+    label: "Finding carrier",
+    tone: "signal",
+    buyerHint: "Verified carriers are sending sealed bids. Compare them and choose one.",
+    sellerHint: "Carriers are bidding. The buyer chooses the carrier.",
+  },
+  carrier_selected: {
+    label: "Carrier booked",
+    tone: "navy",
+    buyerHint: "Your carrier is booked and the invoice now includes freight. Payment into escrow opens next.",
+    sellerHint: "The buyer booked a carrier. Keep the goods ready for pickup on the agreed date.",
+  },
   awaiting_payment: { label: "Awaiting payment", tone: "signal", buyerHint: "Pay into escrow to dispatch.", sellerHint: "Waiting for the buyer's payment." },
   paid_escrow: { label: "Paid · in escrow", tone: "escrow", buyerHint: "Your payment is held safely.", sellerHint: "Payment secured in escrow." },
   in_transit: { label: "In transit", tone: "navy", buyerHint: "On the road.", sellerHint: "On the road." },

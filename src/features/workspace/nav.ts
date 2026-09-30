@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Building2,
+  Container,
   Store,
   Tags,
   Truck,
@@ -35,7 +36,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 3;
+export const CURRENT_PHASE = 4;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -55,7 +56,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "cart", label: "Cart", icon: ShoppingCart, phase: 3, summary: "Products you're about to order, grouped by seller.", primary: true },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Track every order from confirmation to delivery, with proforma invoices.", primary: true },
     { segment: "addresses", label: "Addresses", icon: MapPin, phase: 3, summary: "Where carriers deliver your stock." },
-    { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Request freight, compare sealed carrier bids and pick on price and ETA." },
+    { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Freight requests for your orders and the carriers' sealed bids." },
     { segment: "payments", label: "Payments", icon: Wallet, phase: 5, summary: "Mobile Money payments, escrow status and receipts." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Report missing, damaged or wrong goods with photo evidence." },
   ],
@@ -68,10 +69,12 @@ export const NAV: Record<Role, NavItem[]> = {
   ],
   carrier: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your hauling at a glance.", primary: true },
-    { segment: "verification", label: "Verification", icon: BadgeCheck, phase: 4, summary: "Submit your licence, ID and vehicle details for review by our team.", primary: true },
     { segment: "loads", label: "Load board", icon: Truck, phase: 4, summary: "Freight that fits your verified capacity and routes. Bids are sealed.", primary: true },
+    { segment: "bids", label: "My bids", icon: Gavel, phase: 4, summary: "Your sealed bids and the jobs you've won.", primary: true },
+    { segment: "verification", label: "Verification", icon: BadgeCheck, phase: 4, summary: "Your driver profile, documents and verification status.", primary: true },
+    { segment: "vehicles", label: "Vehicles", icon: Container, phase: 4, summary: "Trucks, vans and bikes you haul with." },
     { segment: "deliveries", label: "Deliveries", icon: Route, phase: 6, summary: "Assigned jobs, pickup details and delivery-code confirmation." },
-    { segment: "earnings", label: "Earnings", icon: Banknote, phase: 5, summary: "Freight payments released from escrow after confirmed delivery.", primary: true },
+    { segment: "earnings", label: "Earnings", icon: Banknote, phase: 5, summary: "Freight payments released from escrow after confirmed delivery." },
   ],
   admin: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Platform health and what needs attention.", primary: true },
@@ -81,6 +84,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "settings", label: "Settings", icon: Settings2, phase: 1, summary: "Platform fee, OTP windows and other business rules.", primary: true },
     { segment: "audit", label: "Audit log", icon: FileClock, phase: 1, summary: "Permanent record of sensitive actions." },
     { segment: "verification", label: "Carrier checks", icon: BadgeCheck, phase: 4, summary: "Review driver documents and vehicles before carriers can bid." },
+    { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Every freight request, its sealed bids and the carrier chosen." },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Every order across the marketplace, with delays flagged." },
     { segment: "finance", label: "Finance", icon: Wallet, phase: 5, summary: "Payments, escrow balances, payouts, refunds and reconciliation." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Open disputes, evidence and resolutions." },

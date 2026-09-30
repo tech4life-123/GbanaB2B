@@ -22,7 +22,7 @@ Target relational model, phase by phase. Designed around the business, not the c
 - ✅ `order_status_history` (append-only)
 - ✅ `proforma_invoices` (number sequence, revision, immutable JSON snapshot, issued_at)
 
-## Freight (Phase 4)
+## Freight (Phase 4 — see [freight.md](freight.md))
 - `driver_profiles`, `vehicle_profiles` (payload_kg, class small/medium/large derived + numeric), `coverage_routes`
 - `verification_documents` (private storage path, doc type) · `verification_records` (PENDING → UNDER_REVIEW → VERIFIED/REJECTED/SUSPENDED, reviewer, reason)
 - `freight_rfqs` (order, pickup, destination, cargo weight/volume/packages, window, expires_at)

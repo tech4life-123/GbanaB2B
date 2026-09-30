@@ -27,7 +27,7 @@ Order numbers: `GB-YYMM-NNNNNN` from `order_number_seq` (not callable by clients
 | pending_seller → cancelled | buyer, seller, admin | Seller/admin must give a reason. |
 | confirmed → fulfilling | seller | |
 | confirmed → cancelled | buyer (within `commerce.order_cancellation_window_minutes` of placement), seller, admin | Restores reserved stock. |
-| fulfilling → ready_for_freight | seller | Phase 4 continues from here. |
+| fulfilling → ready_for_freight | seller | Freight continues from here (see [freight.md](freight.md)). |
 | fulfilling / ready_for_freight → cancelled | seller, admin | Reason required; restores stock. |
 
 Actor precedence: a member of the selling business acts as the **seller**, then the order's buyer acts as the **buyer**, then an admin acts as **admin**. Admin transitions are written to `audit_logs` (`order.admin_transition`). A stale `expected_version` fails with SQLSTATE 40001, so two people can't act on the same page state.
@@ -36,7 +36,7 @@ The TypeScript mirror is `src/lib/orders/state.ts`. `tests/unit/orders.test.ts` 
 
 ## Money
 
-- The buyer's total is `subtotal + freight`. Freight is null until Phase 4.
+- The buyer's total is `subtotal + freight`. Freight is null until a carrier is booked.
 - The platform fee is `fee_for(subtotal, commerce.platform_fee_bps)`, rounded half-up (ADR 0010). It is deducted from the seller's proceeds and **not** added to the buyer's total.
 - USD and LRD are never summed: the cart splits orders by currency.
 

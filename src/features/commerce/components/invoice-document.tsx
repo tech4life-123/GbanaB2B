@@ -63,6 +63,22 @@ export function InvoiceDocument({
         </div>
       </section>
 
+      {s.carrier && (
+        <section className="flex flex-wrap gap-x-8 gap-y-2 border-b border-line py-4 text-sm">
+          <p>
+            <span className="label-caps mr-2 text-muted">Carrier</span>
+            <span className="font-semibold text-trade-900">{s.carrier.name}</span>
+            <span className="text-trade-800"> · {s.carrier.vehicle} · <span className="font-mono">{s.carrier.plate}</span></span>
+          </p>
+          {s.estimated_delivery && (
+            <p>
+              <span className="label-caps mr-2 text-muted">Estimated delivery</span>
+              <span className="font-semibold text-trade-900">{formatDate(s.estimated_delivery)}</span>
+            </p>
+          )}
+        </section>
+      )}
+
       <table className="mt-6 w-full border-collapse text-left text-sm">
         <caption className="sr-only">Invoice lines</caption>
         <thead>

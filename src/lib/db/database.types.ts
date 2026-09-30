@@ -234,6 +234,232 @@ export type Database = {
           },
         ]
       }
+      carrier_assignments: {
+        Row: {
+          amount_minor: number
+          assigned_at: string
+          assigned_by: string | null
+          bid_id: string
+          cancelled_at: string | null
+          carrier_id: string
+          carrier_snapshot: Json
+          currency: Database["public"]["Enums"]["currency_code"]
+          dropoff_snapshot: Json
+          eta_hours: number
+          id: string
+          order_id: string
+          pickup_snapshot: Json
+          proposed_delivery_date: string
+          rfq_id: string
+          status: string
+          vehicle_id: string
+        }
+        Insert: {
+          amount_minor: number
+          assigned_at?: string
+          assigned_by?: string | null
+          bid_id: string
+          cancelled_at?: string | null
+          carrier_id: string
+          carrier_snapshot: Json
+          currency: Database["public"]["Enums"]["currency_code"]
+          dropoff_snapshot: Json
+          eta_hours: number
+          id?: string
+          order_id: string
+          pickup_snapshot: Json
+          proposed_delivery_date: string
+          rfq_id: string
+          status?: string
+          vehicle_id: string
+        }
+        Update: {
+          amount_minor?: number
+          assigned_at?: string
+          assigned_by?: string | null
+          bid_id?: string
+          cancelled_at?: string | null
+          carrier_id?: string
+          carrier_snapshot?: Json
+          currency?: Database["public"]["Enums"]["currency_code"]
+          dropoff_snapshot?: Json
+          eta_hours?: number
+          id?: string
+          order_id?: string
+          pickup_snapshot?: Json
+          proposed_delivery_date?: string
+          rfq_id?: string
+          status?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_assignments_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "freight_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_assignments_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_assignments_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "freight_rfqs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_assignments_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carrier_documents: {
+        Row: {
+          carrier_id: string
+          doc_type: Database["public"]["Enums"]["carrier_document_type"]
+          file_name: string
+          id: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          carrier_id: string
+          doc_type: Database["public"]["Enums"]["carrier_document_type"]
+          file_name: string
+          id?: string
+          mime_type: string
+          size_bytes: number
+          storage_path: string
+          uploaded_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          carrier_id?: string
+          doc_type?: Database["public"]["Enums"]["carrier_document_type"]
+          file_name?: string
+          id?: string
+          mime_type?: string
+          size_bytes?: number
+          storage_path?: string
+          uploaded_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_documents_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_documents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      carrier_profiles: {
+        Row: {
+          address: string
+          coverage_counties: string[]
+          created_at: string
+          full_name: string
+          home_county: string
+          home_town: string
+          id: string
+          is_available: boolean
+          phone: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submitted_at: string | null
+          updated_at: string
+          verification_note: string | null
+          verification_status: Database["public"]["Enums"]["carrier_verification_status"]
+          verified_at: string | null
+        }
+        Insert: {
+          address: string
+          coverage_counties: string[]
+          created_at?: string
+          full_name: string
+          home_county: string
+          home_town: string
+          id: string
+          is_available?: boolean
+          phone: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+          verification_note?: string | null
+          verification_status?: Database["public"]["Enums"]["carrier_verification_status"]
+          verified_at?: string | null
+        }
+        Update: {
+          address?: string
+          coverage_counties?: string[]
+          created_at?: string
+          full_name?: string
+          home_county?: string
+          home_town?: string
+          id?: string
+          is_available?: boolean
+          phone?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+          updated_at?: string
+          verification_note?: string | null
+          verification_status?: Database["public"]["Enums"]["carrier_verification_status"]
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "carrier_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "carrier_profiles_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -279,6 +505,206 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freight_bids: {
+        Row: {
+          amount_minor: number
+          carrier_id: string
+          carrier_name: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          decided_at: string | null
+          eta_hours: number
+          id: string
+          note: string | null
+          payload_kg: number
+          proposed_delivery_date: string
+          rfq_id: string
+          status: Database["public"]["Enums"]["freight_bid_status"]
+          submitted_at: string
+          updated_at: string
+          vehicle_class: Database["public"]["Enums"]["vehicle_class"]
+          vehicle_id: string
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Insert: {
+          amount_minor: number
+          carrier_id: string
+          carrier_name: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          decided_at?: string | null
+          eta_hours: number
+          id?: string
+          note?: string | null
+          payload_kg: number
+          proposed_delivery_date: string
+          rfq_id: string
+          status?: Database["public"]["Enums"]["freight_bid_status"]
+          submitted_at?: string
+          updated_at?: string
+          vehicle_class: Database["public"]["Enums"]["vehicle_class"]
+          vehicle_id: string
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Update: {
+          amount_minor?: number
+          carrier_id?: string
+          carrier_name?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          decided_at?: string | null
+          eta_hours?: number
+          id?: string
+          note?: string | null
+          payload_kg?: number
+          proposed_delivery_date?: string
+          rfq_id?: string
+          status?: Database["public"]["Enums"]["freight_bid_status"]
+          submitted_at?: string
+          updated_at?: string
+          vehicle_class?: Database["public"]["Enums"]["vehicle_class"]
+          vehicle_id?: string
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_bids_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_bids_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "freight_rfqs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_bids_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freight_rfqs: {
+        Row: {
+          awarded_bid_id: string | null
+          cancelled_reason: string | null
+          cargo_summary: string
+          cargo_volume_cm3: number | null
+          cargo_weight_g: number
+          closes_at: string
+          created_at: string
+          created_by: string | null
+          created_by_role: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_county: string
+          destination_landmark: string | null
+          destination_town: string
+          handling_notes: string | null
+          id: string
+          is_fragile: boolean
+          is_stackable: boolean
+          order_id: string
+          package_count: number
+          pickup_area: string | null
+          pickup_county: string
+          pickup_date: string
+          pickup_town: string
+          preferred_delivery_date: string | null
+          required_class: Database["public"]["Enums"]["vehicle_class"]
+          rfq_number: string
+          special_instructions: string | null
+          status: Database["public"]["Enums"]["freight_rfq_status"]
+          updated_at: string
+        }
+        Insert: {
+          awarded_bid_id?: string | null
+          cancelled_reason?: string | null
+          cargo_summary: string
+          cargo_volume_cm3?: number | null
+          cargo_weight_g: number
+          closes_at: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role: string
+          currency: Database["public"]["Enums"]["currency_code"]
+          destination_county: string
+          destination_landmark?: string | null
+          destination_town: string
+          handling_notes?: string | null
+          id?: string
+          is_fragile?: boolean
+          is_stackable?: boolean
+          order_id: string
+          package_count: number
+          pickup_area?: string | null
+          pickup_county: string
+          pickup_date: string
+          pickup_town: string
+          preferred_delivery_date?: string | null
+          required_class: Database["public"]["Enums"]["vehicle_class"]
+          rfq_number: string
+          special_instructions?: string | null
+          status?: Database["public"]["Enums"]["freight_rfq_status"]
+          updated_at?: string
+        }
+        Update: {
+          awarded_bid_id?: string | null
+          cancelled_reason?: string | null
+          cargo_summary?: string
+          cargo_volume_cm3?: number | null
+          cargo_weight_g?: number
+          closes_at?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_role?: string
+          currency?: Database["public"]["Enums"]["currency_code"]
+          destination_county?: string
+          destination_landmark?: string | null
+          destination_town?: string
+          handling_notes?: string | null
+          id?: string
+          is_fragile?: boolean
+          is_stackable?: boolean
+          order_id?: string
+          package_count?: number
+          pickup_area?: string | null
+          pickup_county?: string
+          pickup_date?: string
+          pickup_town?: string
+          preferred_delivery_date?: string | null
+          required_class?: Database["public"]["Enums"]["vehicle_class"]
+          rfq_number?: string
+          special_instructions?: string | null
+          status?: Database["public"]["Enums"]["freight_rfq_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_rfqs_awarded_bid_fkey"
+            columns: ["awarded_bid_id"]
+            isOneToOne: false
+            referencedRelation: "freight_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_rfqs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "freight_rfqs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -906,6 +1332,65 @@ export type Database = {
           },
         ]
       }
+      vehicles: {
+        Row: {
+          cargo_volume_m3: number | null
+          carrier_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_verified: boolean
+          make_model: string | null
+          payload_kg: number
+          plate_number: string
+          updated_at: string
+          vehicle_class: Database["public"]["Enums"]["vehicle_class"] | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          verified_at: string | null
+          year: number | null
+        }
+        Insert: {
+          cargo_volume_m3?: number | null
+          carrier_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          make_model?: string | null
+          payload_kg: number
+          plate_number: string
+          updated_at?: string
+          vehicle_class?: never
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          verified_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          cargo_volume_m3?: number | null
+          carrier_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_verified?: boolean
+          make_model?: string | null
+          payload_kg?: number
+          plate_number?: string
+          updated_at?: string
+          vehicle_class?: never
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          verified_at?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_carrier_id_fkey"
+            columns: ["carrier_id"]
+            isOneToOne: false
+            referencedRelation: "carrier_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -1014,6 +1499,26 @@ export type Database = {
       }
       bootstrap_admin: { Args: { p_phone: string }; Returns: string }
       can_edit_business: { Args: { p_business: string }; Returns: boolean }
+      admin_review_carrier: {
+        Args: {
+          p_carrier: string
+          p_note?: string
+          p_status: Database["public"]["Enums"]["carrier_verification_status"]
+        }
+        Returns: undefined
+      }
+      admin_set_vehicle_verified: {
+        Args: { p_vehicle: string; p_verified: boolean }
+        Returns: undefined
+      }
+      cancel_freight_rfq: {
+        Args: { p_reason?: string; p_rfq: string }
+        Returns: undefined
+      }
+      carrier_can_see_rfq: {
+        Args: { p_rfq: string }
+        Returns: boolean
+      }
       can_view_order: { Args: { p_order: string }; Returns: boolean }
       can_write_business_object: { Args: { p_name: string }; Returns: boolean }
       complete_onboarding: {
@@ -1034,6 +1539,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_freight_rfq: {
+        Args: {
+          p_order: string
+          p_package_count?: number
+          p_pickup_date: string
+          p_preferred_delivery_date?: string
+          p_special_instructions?: string
+        }
+        Returns: string
+      }
       fee_for: { Args: { p_amount: number; p_bps: number }; Returns: number }
       grant_role: {
         Args: {
@@ -1046,10 +1561,22 @@ export type Database = {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
+      is_rfq_buyer: {
+        Args: { p_rfq: string }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
       is_business_member: { Args: { p_business: string }; Returns: boolean }
+      is_verified_carrier: {
+        Args: { p_carrier: string }
+        Returns: boolean
+      }
       issue_proforma: { Args: { p_order: string }; Returns: string }
       make_slug: { Args: { p_text: string }; Returns: string }
+      owns_carrier_object: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
       place_orders: {
         Args: {
           p_address: string
@@ -1082,9 +1609,28 @@ export type Database = {
         Args: { p_product: string; p_specs: Json }
         Returns: undefined
       }
+      select_freight_bid: {
+        Args: { p_bid: string; p_expected_version?: number }
+        Returns: string
+      }
       set_default_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
+      }
+      submit_carrier_for_review: {
+        Args: never
+        Returns: undefined
+      }
+      submit_freight_bid: {
+        Args: {
+          p_amount_minor: number
+          p_delivery_date: string
+          p_eta_hours: number
+          p_note?: string
+          p_rfq: string
+          p_vehicle: string
+        }
+        Returns: string
       }
       tier_price: {
         Args: { p_product: string; p_qty: number }
@@ -1105,6 +1651,14 @@ export type Database = {
       }
       update_platform_setting: {
         Args: { p_key: string; p_value: Json }
+        Returns: undefined
+      }
+      vehicle_class_for: {
+        Args: { p_kg: number }
+        Returns: Database["public"]["Enums"]["vehicle_class"]
+      }
+      withdraw_freight_bid: {
+        Args: { p_bid: string }
         Returns: undefined
       }
       write_audit_log: {
@@ -1134,7 +1688,31 @@ export type Database = {
         | "pending"
         | "verified"
         | "rejected"
+      carrier_document_type:
+        | "driver_license"
+        | "national_id"
+        | "passport"
+        | "vehicle_registration"
+        | "vehicle_insurance"
+        | "other"
+      carrier_verification_status:
+        | "pending"
+        | "under_review"
+        | "verified"
+        | "rejected"
+        | "suspended"
       currency_code: "USD" | "LRD"
+      freight_bid_status:
+        | "submitted"
+        | "withdrawn"
+        | "accepted"
+        | "rejected"
+        | "expired"
+      freight_rfq_status:
+        | "open"
+        | "awarded"
+        | "cancelled"
+        | "expired"
       order_status:
         | "draft"
         | "pending_seller"
@@ -1170,6 +1748,20 @@ export type Database = {
         | "piece"
         | "other"
       product_status: "draft" | "active" | "paused" | "archived"
+      vehicle_class:
+        | "small"
+        | "medium"
+        | "large"
+      vehicle_type:
+        | "motorbike"
+        | "tricycle"
+        | "pickup"
+        | "van"
+        | "box_truck"
+        | "flatbed_truck"
+        | "tipper"
+        | "container_truck"
+        | "other"
       role_status: "active" | "revoked"
     }
     CompositeTypes: {
@@ -1287,7 +1879,35 @@ export const Constants = {
       business_status: ["active", "suspended", "closed"],
       business_type: ["importer", "wholesaler", "distributor", "manufacturer", "retailer", "transport"],
       business_verification_status: ["unverified", "pending", "verified", "rejected"],
+      carrier_document_type: [
+        "driver_license",
+        "national_id",
+        "passport",
+        "vehicle_registration",
+        "vehicle_insurance",
+        "other",
+      ],
+      carrier_verification_status: [
+        "pending",
+        "under_review",
+        "verified",
+        "rejected",
+        "suspended",
+      ],
       currency_code: ["USD", "LRD"],
+      freight_bid_status: [
+        "submitted",
+        "withdrawn",
+        "accepted",
+        "rejected",
+        "expired",
+      ],
+      freight_rfq_status: [
+        "open",
+        "awarded",
+        "cancelled",
+        "expired",
+      ],
       order_status: [
         "draft",
         "pending_seller",
@@ -1312,6 +1932,22 @@ export const Constants = {
         "bale", "bundle", "roll", "pallet", "piece", "other",
       ],
       product_status: ["draft", "active", "paused", "archived"],
+      vehicle_class: [
+        "small",
+        "medium",
+        "large",
+      ],
+      vehicle_type: [
+        "motorbike",
+        "tricycle",
+        "pickup",
+        "van",
+        "box_truck",
+        "flatbed_truck",
+        "tipper",
+        "container_truck",
+        "other",
+      ],
       role_status: ["active", "revoked"],
     },
   },

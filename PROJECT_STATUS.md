@@ -1,10 +1,10 @@
 # Project status
 
-_Last updated: 2026-09-30 (Phase 3 complete)_
+_Last updated: 2026-09-30 (Phase 4 complete)_
 
 ## Current phase
 
-**Phase 3 — B2B commerce: complete.** Stopped at the Phase 3 boundary. Next: **Phase 4 — Freight exchange** (carrier onboarding and verification, RFQs, sealed bids, carrier selection).
+**Phase 4 — Freight exchange: complete.** Stopped at the Phase 4 boundary. Next: **Phase 5 — Financial engine** (escrow ledger, MoMo/Orange Money adapters from verified provider docs, exchange rates, payouts).
 
 ## Verification (all passing)
 
@@ -12,14 +12,22 @@ _Last updated: 2026-09-30 (Phase 3 complete)_
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
-| `npm test` | ✅ 74 unit tests — adds the order state machine (checked against the database's allow-list for every actor), fee rounding and cart grouping |
-| `npm run test:db` | ✅ 10 migrations apply cleanly on PostgreSQL 16; 179 RLS/workflow assertions (50 Phase 1 + 56 Phase 2 + 73 Phase 3) |
+| `npm test` | ✅ 84 unit tests — adds the order state machine (checked against the database's allow-list for every actor), fee rounding and cart grouping |
+| `npm run test:db` | ✅ 11 migrations apply cleanly on PostgreSQL 16; 269 RLS/workflow assertions (50 + 56 + 73 + 90 for Phase 4) |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
-| Live Supabase | ✅ all 10 migrations applied; live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
+| Live Supabase | ✅ all 11 migrations applied; live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
 | Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
 | Visual check | ✅ order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
 
 ## Completed
+
+### Phase 4 — Freight exchange
+- **Carrier:** onboarding (profile, coverage counties, vehicles, private document upload, submit for review), load board filtered to eligible loads, load page with sealed bid form, My bids
+- **Buyer/seller/admin:** request freight from "ready for pickup" orders, compare sealed bids (lowest/fastest hints), book one (invoice revision 2 with carrier + ETA); sellers see only the booked carrier
+- **Admin:** `/admin/verification` queue and carrier review (signed document links, vehicle verification, approve/ask for changes/suspend with audited notes); `/admin/freight`
+- **Database:** `freight.md`, ADR 0012 (private documents, human verification), ADR 0013 (sealed bids, eligibility); live migration function bodies verified identical to local
+- Visual check: freight panel (bidding, seller view, booked) and load card reviewed at 1366px and 390px
+
 
 ### Phase 3 — B2B commerce
 **Buyer**
@@ -91,6 +99,6 @@ App shell, design system (`/design-system`), PWA, env architecture, phone OTP au
 5. When to allow multiple businesses per person / team invitations (ADR 0007).
 6. Production domain name.
 
-## Next phase — Phase 4: Freight exchange
+## Next phase — Phase 5: Financial engine
 
-Carrier onboarding (driver and vehicle profiles, private document upload), admin verification and badge, freight requests from "ready for pickup" orders, eligibility matching by capacity and route, sealed bidding, and buyer carrier selection (issues invoice revision 2 with freight).
+Escrow ledger, payment adapters (only from verified provider docs), exchange rates, fees and payouts. AI never approves payments or releases.

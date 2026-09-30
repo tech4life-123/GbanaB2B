@@ -267,6 +267,8 @@ export interface ProformaSnapshot {
   platform_fee_minor: number;
   total_minor: number;
   total_weight_g: number;
+  carrier: { name: string; vehicle: string; plate: string; eta_hours: number } | null;
+  estimated_delivery: string | null;
   payment_status: string;
   placed_at: string;
   valid_until: string;

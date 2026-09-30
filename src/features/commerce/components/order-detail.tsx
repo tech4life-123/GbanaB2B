@@ -24,12 +24,15 @@ export function OrderDetailView({
   backHref,
   cancelWindowMinutes,
   notice,
+  freight,
 }: {
   order: OrderDetail;
   perspective: OrderActor;
   backHref: string;
   cancelWindowMinutes: number;
   notice?: React.ReactNode;
+  /** Freight section (Phase 4), rendered under the status card. */
+  freight?: React.ReactNode;
 }) {
   const meta = ORDER_STATUS[order.status];
   const actions = availableActions(order.status, perspective, { placedAt: order.placed_at, cancelWindowMinutes });
@@ -88,6 +91,8 @@ export function OrderDetailView({
           )}
         </CardBody>
       </Card>
+
+      {freight}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="space-y-6">
@@ -188,7 +193,7 @@ export function OrderDetailView({
               <AddressBlock address={order.delivery_address} />
               <div className="flex gap-2 rounded-md bg-canvas p-3 text-xs text-muted">
                 <Route className="size-4 shrink-0 text-trade-400" aria-hidden="true" />
-                Carriers bid for this delivery once the freight exchange opens.
+                Verified carriers bid for this delivery once the order is ready for pickup.
               </div>
             </CardBody>
           </Card>

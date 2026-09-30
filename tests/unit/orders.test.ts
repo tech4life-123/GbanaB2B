@@ -22,6 +22,8 @@ describe("order state machine (mirror of transition_order)", () => {
     ["fulfilling", "ready_for_freight", ["seller"]],
     ["fulfilling", "cancelled", ["seller", "admin"]],
     ["ready_for_freight", "cancelled", ["seller", "admin"]],
+    ["freight_requested", "cancelled", ["seller", "admin"]],
+    ["carrier_selected", "cancelled", ["seller", "admin"]],
   ];
   const actors: OrderActor[] = ["buyer", "seller", "admin"];
 
