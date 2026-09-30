@@ -13,6 +13,10 @@ export const SETTING_META: Record<string, { label: string; unit?: string; format
   "payments.mtn_enabled": { label: "MTN Mobile Money", unit: "1 = on, 0 = off", format: (v) => (String(v) === "1" ? "On" : "Off") },
   "payments.orange_enabled": { label: "Orange Money", unit: "1 = on, 0 = off", format: (v) => (String(v) === "1" ? "On" : "Off") },
   "payments.intent_expiry_minutes": { label: "Payment approval window", unit: "minutes", format: (v) => `${v} min` },
+  "ai.enabled": { label: "AI assistants", unit: "1 = on, 0 = off", format: (v) => (String(v) === "1" ? "On" : "Off") },
+  "ai.requests_per_day": { label: "AI requests per person per day", unit: "requests", format: (v) => `${v} / day` },
+  "ai.requests_per_minute": { label: "AI requests per person per minute", unit: "requests", format: (v) => `${v} / min` },
+  "ai.max_input_chars": { label: "AI maximum input length", unit: "characters", format: (v) => `${v} chars` },
   "fx.display_currency": { label: "Default display currency" },
 };
 
@@ -29,6 +33,6 @@ export function formatSettingValue(key: string, value: Json): string {
 export function settingGroup(key: string) {
   const group = key.split(".")[0] ?? "other";
   return (
-    { commerce: "Commerce", freight: "Freight", delivery: "Delivery", auth: "Security", fx: "Currency", payments: "Payments" } as Record<string, string>
+    { commerce: "Commerce", freight: "Freight", delivery: "Delivery", auth: "Security", fx: "Currency", payments: "Payments", ai: "AI assistants" } as Record<string, string>
   )[group] ?? "Other";
 }

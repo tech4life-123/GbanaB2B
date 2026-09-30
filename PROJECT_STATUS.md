@@ -1,10 +1,10 @@
 # Project status
 
-_Last updated: 2026-09-30 (Phase 6 complete; payments still on the test provider)_
+_Last updated: 2026-09-30 (Phase 7 complete; payments still on the test provider; AI not yet connected)_
 
 ## Current phase
 
-**Phase 6 — Delivery & trust: complete.** MTN MoMo and Orange Money are still **not connected** (payments run on the labelled test provider; SMS is on hold with temporary email+password access). Stopped at the Phase 6 boundary. Next: **Phase 7 — AI assistants** (they may suggest and explain, never approve payments or releases), then **Phase 8 — Production hardening**.
+**Phase 7 — AI assistants: complete.** The assistants are built, permission-aware and advisory-only, but show **"not connected"** until `ANTHROPIC_API_KEY` is set on Vercel and an admin sets `ai.enabled` to 1 (Settings → AI). MTN MoMo and Orange Money are still **not connected** (test provider; SMS on hold with temporary email+password access). Stopped at the Phase 7 boundary. Next: **Phase 8 — Production hardening**.
 
 ## Verification (all passing)
 
@@ -12,14 +12,22 @@ _Last updated: 2026-09-30 (Phase 6 complete; payments still on the test provider
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
-| `npm test` | ✅ 110 unit tests — adds delivery/dispute/review helpers, evidence paths, cron auth and the Phase 6 order paths |
-| `npm run test:db` | ✅ 13 migrations apply cleanly on PostgreSQL 16; 559 RLS/workflow assertions (… + 181 for Phase 6) |
+| `npm test` | ✅ 125 unit tests — adds AI redaction, JSON extraction, prompt fencing and the Anthropic adapter (mocked fetch) |
+| `npm run test:db` | ✅ 14 migrations apply cleanly on PostgreSQL 16; 594 RLS/workflow assertions (… + 35 for Phase 7) |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
 | Live Supabase | ✅ all 13 migrations applied (39 Phase 6 function bodies verified identical to local); live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
 | Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
-| Visual check | ✅ Phase 6: delivery code card, carrier job controls (pickup/in transit/arrived), dispute page with admin decision form, reviews and trust summary at 1366px and 390px (sample-data harness, removed). Earlier: order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
+| Visual check | ✅ Phase 7: all assistant forms and not-connected/switched-off states at 1366px and 390px (harness removed). Phase 6: delivery code card, carrier job controls (pickup/in transit/arrived), dispute page with admin decision form, reviews and trust summary at 1366px and 390px (sample-data harness, removed). Earlier: order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
 
 ## Completed
+
+### Phase 7 — AI assistants
+- **Buyer** `/buyer/assistant`: describe a need → the AI proposes ≤4 search phrases and quantity/MOQ notes; the server then searches the real catalogue, so products are never invented.
+- **Seller** `/seller/assistant`: rough notes → draft title, description, specs and a category (validated against the real list) to copy into the normal listing form. Nothing is saved or published.
+- **Freight** (buyer and seller): vehicle class from the platform's weight bands (deterministic) plus AI packing/handover tips.
+- **Admin** `/admin/assistant`: database-computed marketplace snapshot (7/30/90 days; aggregates only) with an optional plain-language briefing; "Summarize" on each dispute page (neutral recap; never an outcome or amount).
+- Controls: off by default (`ai.enabled`), per-person per-minute and per-day quotas and role checks in the database (`ai_take_quota`), usage log without prompts or answers, input cap, redaction, untrusted-text fencing, schema-validated output.
+- Docs: `docs/ai/assistants.md`, ADR 0017, SECURITY.md rows.
 
 ### Phase 6 — Delivery & trust
 - **Delivery:** carrier `/carrier/deliveries` (active / delivered / cancelled) and a job page: collect goods → post updates (optional one-off approximate location, rate-limited) → arrived → enter the buyer's 6-digit code (5 tries then locked) or report a failed delivery. Order pages show the tracking trail to buyer, seller and admin.
@@ -125,6 +133,12 @@ App shell, design system (`/design-system`), PWA, env architecture, phone OTP au
 - Refunds happen only through disputes (full or partial); there is no buyer-initiated refund outside a dispute.
 - Webhook endpoint has no rate limiting yet (Phase 8).
 
-## Next phase — Phase 7: AI assistants
+## Known limits (Phase 7)
 
-Seller listing help, buyer search help, dispute summaries for admins. AI may suggest and explain; it never approves payments, releases escrow or decides disputes.
+- **No live model call has been tested**: no provider key exists yet. The adapter is unit-tested against mocked responses only. Expect to tune prompts after the first real calls.
+- A quota unit is used even if the model call then fails (the database takes it first).
+- The dispute summary cannot see photos or videos, only the text.
+
+## Next phase — Phase 8: Production hardening
+
+Webhook rate limiting, accessibility and 3G testing, security review, observability and launch checklist.

@@ -32,6 +32,10 @@ const serverShape = {
   // Shared secret for scheduled jobs (Vercel Cron sends it as a Bearer token). Random, 16+ chars.
   CRON_SECRET: z.string().min(16),
 
+  // AI assistants (Phase 7). Advisory only; inactive until a key is set AND ai.enabled=1.
+  ANTHROPIC_API_KEY: z.string().min(20),
+  AI_MODEL: z.string().min(3),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]),
 
   // TEMPORARY: enables email + password sign-in for pre-provisioned accounts

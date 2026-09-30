@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   MapPin,
   Package,
+  Sparkles,
   Route,
   Settings2,
   Star,
@@ -37,7 +38,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 6;
+export const CURRENT_PHASE = 7;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -60,6 +61,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Freight requests for your orders and the carriers' sealed bids." },
     { segment: "payments", label: "Payments", icon: Wallet, phase: 5, summary: "Mobile Money payments, escrow status and receipts." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Report missing, damaged or wrong goods with photo evidence." },
+    { segment: "assistant", label: "Assistant", icon: Sparkles, phase: 7, summary: "Turn a sourcing need into real marketplace searches and plan a delivery." },
   ],
   seller: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your sales at a glance.", primary: true },
@@ -69,6 +71,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "payouts", label: "Payouts", icon: Banknote, phase: 5, summary: "Earnings released from escrow, platform fees and payout history." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Disputes on your orders, with evidence and replies." },
     { segment: "reviews", label: "Reviews", icon: Star, phase: 6, summary: "Buyer ratings of your business, and your replies." },
+    { segment: "assistant", label: "Assistant", icon: Sparkles, phase: 7, summary: "Draft listings from rough notes and plan a hand-over to a carrier." },
   ],
   carrier: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your hauling at a glance.", primary: true },
@@ -94,6 +97,7 @@ export const NAV: Record<Role, NavItem[]> = {
     { segment: "finance", label: "Finance", icon: Wallet, phase: 5, summary: "Payments, escrow balances, payouts, refunds and reconciliation." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Open disputes, evidence and resolutions." },
     { segment: "reviews", label: "Reviews", icon: Star, phase: 6, summary: "Moderate buyer reviews of sellers and carriers." },
+    { segment: "assistant", label: "Assistant", icon: Sparkles, phase: 7, summary: "Marketplace numbers with a plain-language briefing. Advisory only." },
   ],
 };
 

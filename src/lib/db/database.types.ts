@@ -77,6 +77,35 @@ export type Database = {
           },
         ]
       }
+      ai_usage: {
+        Row: {
+          assistant: string
+          created_at: string
+          id: number
+          user_id: string | null
+        }
+        Insert: {
+          assistant: string
+          created_at?: string
+          id?: never
+          user_id?: string | null
+        }
+        Update: {
+          assistant?: string
+          created_at?: string
+          id?: never
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -2392,6 +2421,14 @@ export type Database = {
       }
     }
     Functions: {
+      ai_take_quota: {
+        Args: { p_assistant: string }
+        Returns: number
+      }
+      admin_marketplace_snapshot: {
+        Args: { p_days?: number }
+        Returns: Json
+      }
       admin_review_business: {
         Args: {
           p_business: string

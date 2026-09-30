@@ -51,6 +51,10 @@ Security is a product requirement. This document is the threat model and the con
 | Stuck or abandoned orders | Unpaid orders expire after 48 h (stock released); silent deliveries release after 72 h; late provider success is parked, not applied | ✅ tested |
 | Scheduled-job abuse | `/api/cron/sweep` requires the `CRON_SECRET` bearer (timing-safe); the database function is service-role only | ✅ tested |
 | Location tracking of carriers | No continuous GPS: opt-in single point per update, rounded to ~11 m, at most every 120 s | ✅ tested |
+| Prompt injection via user text | Everything a user wrote is fenced in `<untrusted>` tags (fence look-alikes stripped), the system prompt says to treat it as data, output must validate against a zod schema or is discarded, and nothing the model returns is executed | ✅ unit tested |
+| AI taking a sensitive action | The model has no tools and no write access. It can only return text; approve/release/refund/verify/decide paths don't reference it. Products shown are real catalogue rows found by search; categories are checked against the real list | ✅ by design + tested |
+| Personal data sent to the model | Phones, emails and codes are redacted; admin briefing uses a database function that returns aggregates only; dispute summary sends the thread text (redacted), no evidence files | ✅ tested |
+| AI cost abuse | Switched off by default; per-person per-minute and per-day quotas taken in the database (`ai_take_quota`) before any model call; role-checked there too; input length capped | ✅ tested |
 | Document exposure | Private storage buckets; signed URLs for admins only (listing photos are deliberately public — ADR 0008) | 🔜 Phase 4 |
 
 ## Temporary access (pre-launch)
@@ -69,7 +73,7 @@ While no SMS provider is configured, `DEMO_ACCESS_ENABLED=true` (Vercel env) sho
 
 ## AI boundary
 
-AI features (Phase 7) may summarise and recommend. They must never approve payments, release escrow, approve refunds, verify identities or drivers, or alter financial records or audit logs.
+AI features (Phase 7) may summarise and recommend. They must never approve payments, release escrow, approve refunds, verify identities or drivers, or alter financial records or audit logs. This is enforced structurally: the model is given no tools and no credentials, its context is gathered with the signed-in user's own RLS client (never the service role), and its reply is validated text that is shown, not executed. See `docs/ai/assistants.md` and ADR 0017.
 
 ## Reporting
 

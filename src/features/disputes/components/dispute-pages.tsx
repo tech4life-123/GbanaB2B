@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { getDispute, getMaxEvidenceFiles, listDisputes } from "../queries";
 import { DisputeList } from "./dispute-list";
+import { getAiStatus } from "@/features/ai/run";
 import { DisputeView } from "./dispute-view";
 import { PageHeader } from "@/components/ui/feedback";
 import { FilterTabs } from "@/features/commerce/components/order-bits";
@@ -40,7 +41,7 @@ export async function DisputesIndex({ role, tab: wanted }: { role: Role; tab?: s
 
 export async function DisputePage({ role, id }: { role: Role; id: string }) {
   const viewer = await requireRole(role);
-  const [detail, maxEvidence] = await Promise.all([getDispute(id), getMaxEvidenceFiles()]);
+  const [detail, maxEvidence, ai] = await Promise.all([getDispute(id), getMaxEvidenceFiles(), role === "admin" ? getAiStatus() : null]);
   if (!detail) notFound();
-  return <DisputeView detail={detail} role={role} viewerId={viewer.id} maxEvidence={maxEvidence} />;
+  return <DisputeView detail={detail} role={role} viewerId={viewer.id} maxEvidence={maxEvidence} aiReady={Boolean(ai?.configured && ai.enabled)} />;
 }

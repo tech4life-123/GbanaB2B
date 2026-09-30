@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/feedback";
 import { formatMoney } from "@/lib/money/currency";
 import { DISPUTE_KIND, DISPUTE_STATUS, isLiveDispute, PARTY_LABEL } from "@/lib/trust/labels";
 import type { DisputeDetail } from "../queries";
+import { DisputeSummary } from "@/features/ai/components/dispute-summary";
 import { ResolveForm, StartReviewButton } from "./admin-console";
 import { EvidenceList, EvidenceUploader } from "./evidence";
 import { MessageForm, WithdrawButton } from "./thread";
@@ -31,11 +32,14 @@ export function DisputeView({
   role,
   viewerId,
   maxEvidence,
+  aiReady = false,
 }: {
   detail: DisputeDetail;
   role: "buyer" | "seller" | "carrier" | "admin";
   viewerId: string;
   maxEvidence: number;
+  /** Admin only: the AI summary button is usable (provider connected and switched on). */
+  aiReady?: boolean;
 }) {
   const { dispute, messages, evidence, order, escrow } = detail;
   const status = DISPUTE_STATUS[dispute.status];
@@ -138,6 +142,8 @@ export function DisputeView({
               </CardBody>
             </Card>
           )}
+
+          {role === "admin" && <DisputeSummary disputeId={dispute.id} disabled={!aiReady} />}
 
           {role === "admin" && live && order && (
             <Card>
