@@ -6,7 +6,7 @@ Target relational model, phase by phase. Designed around the business, not the c
 - ✅ `profiles`, ✅ `user_roles`
 - ✅ `businesses` (legal name, trading name, type: importer/wholesaler/retailer/fleet, registration no., county, verification status)
 - ✅ `business_members` (business ↔ profile, member role: owner/manager/staff)
-- `addresses` (owner business, label, county, town, landmark, geo point, is_default) — built in Phase 3 with delivery destinations
+- ✅ `addresses` (owner profile, label, contact, county, town, street, landmark, geo point, is_default)
 
 ## Commerce (Phase 2)
 - ✅ `product_categories` (tree-ready)
@@ -16,10 +16,11 @@ Target relational model, phase by phase. Designed around the business, not the c
 - ✅ Logistics attributes on product: `unit_weight_g`, `unit_volume_cm3`, dimensions, fragile, stacking
 
 ## Orders (Phase 3)
-- `orders` (buyer business, seller business, status enum, currency, subtotal_minor, fee_bps snapshot, exchange_rate snapshot, delivery address snapshot, version for optimistic concurrency)
-- `order_items` (product snapshot: title, unit, unit_price_minor, qty, weight)
-- `order_status_history` (append-only)
-- `proforma_invoices` (number sequence, immutable JSON snapshot, issued_at)
+- ✅ `cart_items` (profile, product, quantity)
+- ✅ `orders` (buyer profile + snapshot, seller business + snapshot, status enum, currency, subtotal/fee/freight/total minor, fee_bps snapshot, delivery address snapshot, version) — ADR 0011; exchange-rate snapshot arrives with Phase 5
+- ✅ `order_items` (product snapshot: title, unit, SKU, packaging, unit_price_minor, qty, weight, tier range)
+- ✅ `order_status_history` (append-only)
+- ✅ `proforma_invoices` (number sequence, revision, immutable JSON snapshot, issued_at)
 
 ## Freight (Phase 4)
 - `driver_profiles`, `vehicle_profiles` (payload_kg, class small/medium/large derived + numeric), `coverage_routes`

@@ -32,6 +32,11 @@ Security is a product requirement. This document is the threat model and the con
 | Seller self-verifies | `verification_status` not granted; `admin_review_business()` only | ✅ tested |
 | Drafts leak publicly | Public pages use anon client; RLS shows only active listings of active businesses | ✅ tested |
 | Oversized/malicious uploads | Bucket limit 2 MB, MIME allow-list, client re-encode to WebP/JPEG, path regex | ✅ |
+| Buyer tampers with prices or totals | Orders are created only by `place_orders()`, which re-prices from the current tiers; clients have no insert/update on orders or items; items and invoices are immutable | ✅ tested |
+| Seller or buyer skips steps / acts for the other party | `transition_order()` checks the actor and the allowed move, needs a reason for seller/admin cancels, and enforces the buyer cancellation window | ✅ tested |
+| Order data seen by the wrong party | RLS: buyer, members of the selling business, or admin only; competitors and other buyers see nothing | ✅ tested |
+| Overselling | Stock is reserved atomically on confirmation (`quantity_available >= qty`); cancelling restores it | ✅ tested |
+| Stale-page double action | `expected_version` optimistic concurrency on transitions | ✅ tested |
 | Competitor sees bids | RLS own-rows-only + tests via API, nested relations, Realtime | 🔜 Phase 4 |
 | Fake payment success | Provider interface: success only from verified webhook/status query; idempotency keys | 🔜 Phase 5 |
 | Double escrow release | Transactional, idempotent release function + state machine | 🔜 Phase 5/6 |

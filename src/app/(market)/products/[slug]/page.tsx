@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, BadgeCheck, ChevronRight, Layers, Lock, MapPin, MessageCircle, Scale, Store } from "lucide-react";
+import { AlertTriangle, BadgeCheck, ChevronRight, Layers, LogIn, MapPin, MessageCircle, Scale, ShoppingCart, Store } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { buttonClasses } from "@/components/ui/button";
+import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { DataList } from "@/components/ui/data";
 import { BUSINESS_TYPES, ORIGIN_COUNTRIES, PACKAGING, VERIFICATION } from "@/features/marketplace/constants";
 import { Gallery } from "@/features/marketplace/components/gallery";
 import { ProductGrid } from "@/features/marketplace/components/product-card";
 import { QuantityEstimator } from "@/features/marketplace/components/quantity-estimator";
+import { AddToCartPanel } from "@/features/commerce/components/add-to-cart";
+import { getCartQuantity } from "@/features/commerce/queries";
+import { getMyBusiness } from "@/features/seller/queries";
+import { getViewer } from "@/lib/auth/session";
 import { getPublicProduct, relatedListings } from "@/features/marketplace/queries";
 import { formatWeight } from "@/lib/logistics/units";
 import { formatMoney } from "@/lib/money/currency";
@@ -41,7 +46,7 @@ export default async function ProductPage({ params }: Props) {
   const tiers = fromRows(product.tiers);
   const images = [...product.images].sort((a, b) => a.sort_order - b.sort_order);
   const specs = [...product.specs].sort((a, b) => a.sort_order - b.sort_order);
-  const related = await relatedListings(product.category.slug, product.id);
+  const [related, buy] = await Promise.all([relatedListings(product.category.slug, product.id), buyState(product.id, product.business.id)]);
   const verification = VERIFICATION[product.business.verification_status];
   const nf = new Intl.NumberFormat("en-US");
   const fromPrice = tiers.length ? Math.min(...tiers.map((t) => t.unitPriceMinor)) : null;
@@ -114,7 +119,18 @@ export default async function ProductPage({ params }: Props) {
             <Fact label="Unit weight" value={formatWeight(product.unit_weight_g)} />
           </div>
 
-          {tiers.length > 0 && (
+          {tiers.length > 0 && buy.mode === "buy" ? (
+            <AddToCartPanel
+              productId={product.id}
+              tiers={tiers}
+              currency={product.currency}
+              moq={product.moq}
+              unitLabel={product.unit_label}
+              unitWeightG={product.unit_weight_g}
+              available={product.quantity_available}
+              inCartQty={buy.inCartQty}
+            />
+          ) : tiers.length > 0 ? (
             <QuantityEstimator
               tiers={tiers}
               currency={product.currency}
@@ -123,15 +139,30 @@ export default async function ProductPage({ params }: Props) {
               unitWeightG={product.unit_weight_g}
               available={product.quantity_available}
             />
-          )}
+          ) : null}
 
           <div className="space-y-2.5">
-            <button type="button" disabled className={`${buttonClasses("primary", "lg")} w-full`} aria-describedby="order-note">
-              <Lock className="size-4" aria-hidden="true" /> Order with escrow
-            </button>
-            <p id="order-note" className="text-center text-xs text-muted">
-              Ordering opens soon. Payments will be held in escrow until you confirm delivery.
-            </p>
+            {buy.mode === "signin" && (
+              <>
+                <ButtonLink href={`/sign-in?next=${encodeURIComponent(`/products/${product.slug}`)}`} size="lg" className="w-full" icon={<LogIn className="size-4" aria-hidden="true" />}>
+                  Sign in to order
+                </ButtonLink>
+                <p className="text-center text-xs text-muted">Free for buyers. The seller confirms stock before you pay anything.</p>
+              </>
+            )}
+            {buy.mode === "role" && (
+              <>
+                <ButtonLink href="/onboarding?add=buyer" size="lg" className="w-full" icon={<ShoppingCart className="size-4" aria-hidden="true" />}>
+                  Start buying on GbanaB2B
+                </ButtonLink>
+                <p className="text-center text-xs text-muted">Add the buyer role to your account to order wholesale.</p>
+              </>
+            )}
+            {buy.mode === "own" && (
+              <Alert tone="info" title="This is your listing" action={<Link href={`/seller/listings/${product.id}`} className="font-semibold underline-offset-2 hover:underline">Edit listing</Link>}>
+                Buyers see it exactly like this.
+              </Alert>
+            )}
             <a href={share} target="_blank" rel="noopener noreferrer" className={`${buttonClasses("outline", "md")} w-full`}>
               <MessageCircle className="size-4" aria-hidden="true" /> Share on WhatsApp
             </a>
@@ -240,6 +271,20 @@ export default async function ProductPage({ params }: Props) {
       />
     </div>
   );
+}
+
+type BuyState = { mode: "signin" } | { mode: "role" } | { mode: "own" } | { mode: "buy"; inCartQty: number | null };
+
+/** What the order panel should offer this visitor. */
+async function buyState(productId: string, businessId: string): Promise<BuyState> {
+  const viewer = await getViewer();
+  if (!viewer) return { mode: "signin" };
+  if (viewer.roles.includes("seller")) {
+    const mine = await getMyBusiness();
+    if (mine?.id === businessId) return { mode: "own" };
+  }
+  if (!viewer.roles.includes("buyer")) return { mode: "role" };
+  return { mode: "buy", inCartQty: await getCartQuantity(productId) };
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

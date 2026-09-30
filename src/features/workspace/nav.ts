@@ -5,10 +5,12 @@ import {
   FileClock,
   Gavel,
   LayoutDashboard,
+  MapPin,
   Package,
   Route,
   Settings2,
   ShoppingBag,
+  ShoppingCart,
   Building2,
   Store,
   Tags,
@@ -33,7 +35,7 @@ export interface NavItem {
 }
 
 /** Phase the codebase has completed. Bump when a phase's definition of done is met. */
-export const CURRENT_PHASE = 2;
+export const CURRENT_PHASE = 3;
 
 export const PHASE_NAMES: Record<number, string> = {
   1: "Foundation",
@@ -50,8 +52,10 @@ export const NAV: Record<Role, NavItem[]> = {
   buyer: [
     { segment: "", label: "Overview", icon: LayoutDashboard, phase: 1, summary: "Your buying at a glance.", primary: true },
     { segment: "marketplace", label: "Marketplace", icon: ShoppingBag, phase: 2, summary: "Search wholesale stock by category, MOQ, price tier and seller.", primary: true },
+    { segment: "cart", label: "Cart", icon: ShoppingCart, phase: 3, summary: "Products you're about to order, grouped by seller.", primary: true },
     { segment: "orders", label: "Orders", icon: ClipboardList, phase: 3, summary: "Track every order from confirmation to delivery, with proforma invoices.", primary: true },
-    { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Request freight, compare sealed carrier bids and pick on price and ETA.", primary: true },
+    { segment: "addresses", label: "Addresses", icon: MapPin, phase: 3, summary: "Where carriers deliver your stock." },
+    { segment: "freight", label: "Freight", icon: Route, phase: 4, summary: "Request freight, compare sealed carrier bids and pick on price and ETA." },
     { segment: "payments", label: "Payments", icon: Wallet, phase: 5, summary: "Mobile Money payments, escrow status and receipts." },
     { segment: "disputes", label: "Disputes", icon: Gavel, phase: 6, summary: "Report missing, damaged or wrong goods with photo evidence." },
   ],

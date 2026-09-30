@@ -64,6 +64,13 @@ Admin screens use the *server* client, not the admin client: admin visibility co
 - **Seller writes:** server actions in `features/seller/actions.ts` validate with Zod, check ownership, then call DB functions (`save_product_pricing`, …) or RLS-protected updates. Pricing rules are mirrored in `lib/pricing/tiers.ts` for instant feedback; the database is authoritative.
 - **Photos:** compressed in the browser (`lib/storage/compress.ts`) → uploaded directly to Storage (folder policy) → registered by a server action that re-validates the path. Served via `next/image` (AVIF/WebP, sized per device, quality 60 in grids).
 
+## Ordering data flow
+
+- **Cart:** `cart_items` rows (server-side, per profile). The cart page groups lines with `lib/orders/cart.ts` exactly as checkout will split them (one order per seller and currency) and flags MOQ, stock and availability problems before the buyer tries to check out.
+- **Checkout:** `placeOrders` action → `place_orders()` in the database, which re-prices and validates everything inside one transaction. The client never sends prices.
+- **Lifecycle:** order pages compute the allowed actions with `lib/orders/state.ts` (UI only). Each action posts to `transitionOrder` → `transition_order()`, which is authoritative (actor, state, reason, cancellation window, stock, version).
+- **Invoices:** `/orders/[id]/invoice` renders the immutable proforma snapshot. Print CSS gives an A4 page, and the browser's "Save as PDF" produces the file, so no PDF library is shipped. WhatsApp sharing sends a text summary plus a link that only the order's parties can open.
+
 ## PWA
 
 `app/manifest.ts` + `public/sw.js`. The service worker caches hashed static assets only and falls back to `/offline` for navigations. It never caches HTML or API responses, because workspace pages contain private data and phones are often shared. Push handlers exist; subscription storage arrives with notifications.

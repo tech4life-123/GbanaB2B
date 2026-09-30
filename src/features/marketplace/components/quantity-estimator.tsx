@@ -10,7 +10,7 @@ import { PriceTierTable } from "./price-tiers";
 /**
  * Lets a buyer try a quantity and see the tier that applies, the subtotal and
  * the cargo weight/carrier class. Estimation only — prices are locked when an
- * order is placed (Phase 3), and freight is priced by carrier bids.
+ * order is placed, and freight is priced by carrier bids.
  */
 export function QuantityEstimator({
   tiers,
@@ -19,6 +19,8 @@ export function QuantityEstimator({
   unitLabel,
   unitWeightG,
   available,
+  inputName,
+  initialQty,
 }: {
   tiers: PriceTier[];
   currency: CurrencyCode;
@@ -26,9 +28,12 @@ export function QuantityEstimator({
   unitLabel: string;
   unitWeightG: number | null;
   available: number;
+  /** Set when the estimator sits inside an add-to-cart form. */
+  inputName?: string;
+  initialQty?: number;
 }) {
   const id = useId();
-  const [raw, setRaw] = useState(String(moq));
+  const [raw, setRaw] = useState(String(initialQty ?? moq));
   const qty = Number.parseInt(raw, 10);
   const valid = Number.isFinite(qty) && qty > 0;
 
@@ -50,11 +55,12 @@ export function QuantityEstimator({
 
       <div className="rounded-lg border border-line bg-canvas p-4">
         <label htmlFor={id} className="flex items-center gap-2 text-sm font-bold text-trade-900">
-          <Calculator className="size-4 text-trade-500" aria-hidden="true" /> Estimate your order
+          <Calculator className="size-4 text-trade-500" aria-hidden="true" /> {inputName ? "Quantity" : "Estimate your order"}
         </label>
         <div className="mt-2.5 flex items-center gap-2">
           <input
             id={id}
+            name={inputName}
             inputMode="numeric"
             value={raw}
             onChange={(e) => setRaw(e.target.value.replace(/\D/g, "").slice(0, 7))}
@@ -94,7 +100,7 @@ export function QuantityEstimator({
           )}
         </div>
         <p className="mt-3 border-t border-line pt-2.5 text-xs leading-relaxed text-muted">
-          Estimate only. Prices lock when you place an order; freight is priced separately by carrier bids.
+          Prices lock when you place your order. Freight is priced separately by verified carriers.
         </p>
       </div>
     </div>
