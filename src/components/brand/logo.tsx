@@ -97,7 +97,7 @@ export function Logo({
             tone === "light" ? "text-white" : "text-trade-900",
           )}
         >
-          Gbana<span className={tone === "light" ? "text-signal-500" : "text-signal-600"}>B2B</span>
+          Gbana<span className={tone === "light" ? "text-signal-500" : "text-signal-700"}>B2B</span>
         </span>
         {showTagline && (
           <span

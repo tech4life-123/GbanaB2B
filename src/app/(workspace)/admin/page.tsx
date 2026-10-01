@@ -7,7 +7,8 @@ import { StatusDot } from "@/components/ui/badge";
 import { getPlatformOverview, listRecentAudit, listSettings } from "@/features/admin/queries";
 import { formatSettingValue, settingLabel } from "@/features/admin/settings-meta";
 import { AuditList } from "@/features/admin/components/audit-list";
-import { getSupabaseSecretKey, isTemporaryAccessEnabled } from "@/config/env.server";
+import { getSupabaseSecretKey, isTemporaryAccessEnabled, serverEnv } from "@/config/env.server";
+import { isAiConfigured } from "@/lib/ai/server";
 import { Alert } from "@/components/ui/alert";
 import { ROLE_META, ROLES } from "@/lib/auth/roles";
 
@@ -23,6 +24,8 @@ export default async function AdminOverviewPage() {
     { label: "Database & auth", ok: true, detail: "Supabase connected" },
     { label: "Privileged server key", ok: Boolean(getSupabaseSecretKey()), detail: getSupabaseSecretKey() ? "Configured (server only)" : "Not set — webhooks & jobs unavailable" },
     { label: "Test payment provider", ok: sandboxOn, detail: sandboxOn ? "ON — no real money moves" : "Off" },
+    { label: "Scheduled jobs", ok: Boolean(serverEnv.CRON_SECRET), detail: serverEnv.CRON_SECRET ? "Nightly sweep can run" : "CRON_SECRET not set — order expiry and auto-release won't run" },
+    { label: "AI assistants", ok: isAiConfigured() && String(settings.find((s) => s.key === "ai.enabled")?.value) === "1", detail: !isAiConfigured() ? "Not connected — no provider key" : String(settings.find((s) => s.key === "ai.enabled")?.value) === "1" ? "On (advisory only)" : "Connected but switched off" },
     { label: "MTN Mobile Money", ok: false, detail: "Not connected — needs provider API access" },
     { label: "Orange Money", ok: false, detail: "Not connected — needs provider API access" },
   ];

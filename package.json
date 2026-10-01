@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:db": "bash scripts/test-db.sh",
+    "test:concurrency": "bash scripts/test-concurrency.sh",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "icons": "node scripts/generate-icons.mjs"
   },

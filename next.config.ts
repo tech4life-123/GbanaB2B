@@ -17,6 +17,34 @@ const supabaseHost = (() => {
   }
 })();
 
+/**
+ * Content-Security-Policy (production only; the dev server needs eval).
+ * Next.js inlines small bootstrap scripts, so script-src keeps 'unsafe-inline'
+ * until a nonce pipeline is added; everything else is locked to this site and
+ * the project's own Supabase host. See docs/operations/runbook.md.
+ */
+function contentSecurityPolicy(): string | null {
+  if (process.env.NODE_ENV !== "production") return null;
+  const supa = supabaseHost ? `https://${supabaseHost}` : "";
+  const supaWs = supabaseHost ? `wss://${supabaseHost}` : "";
+  return [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' data: blob: ${supa}`.trim(),
+    `media-src 'self' blob: ${supa}`.trim(),
+    "font-src 'self'",
+    `connect-src 'self' ${supa} ${supaWs}`.trim().replace(/\s+/g, " "),
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -34,7 +62,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      { source: "/:path*", headers: securityHeaders },
+      { source: "/:path*", headers: [...securityHeaders, ...(contentSecurityPolicy() ? [{ key: "Content-Security-Policy", value: contentSecurityPolicy()! }] : [])] },
       {
         source: "/sw.js",
         headers: [

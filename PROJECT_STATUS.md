@@ -1,10 +1,10 @@
 # Project status
 
-_Last updated: 2026-09-30 (Phase 7 complete; payments still on the test provider; AI not yet connected)_
+_Last updated: 2026-10-01 (Phase 8 complete; payments still on the test provider; AI not yet connected)_
 
 ## Current phase
 
-**Phase 7 — AI assistants: complete.** The assistants are built, permission-aware and advisory-only, but show **"not connected"** until `ANTHROPIC_API_KEY` is set on Vercel and an admin sets `ai.enabled` to 1 (Settings → AI). MTN MoMo and Orange Money are still **not connected** (test provider; SMS on hold with temporary email+password access). Stopped at the Phase 7 boundary. Next: **Phase 8 — Production hardening**.
+**Phase 8 — Production hardening: complete as far as can be done without real providers and a real device.** Two real security/correctness issues were found and fixed (private business columns readable by anyone; AI quota race). Not launch-ready yet: MTN MoMo/Orange Money are **not connected** (test provider), SMS is on hold (temporary email+password access), AI shows "not connected" until a key is set, and the launch checklist (`docs/operations/launch-checklist.md`) has owner-only items. Stopped at the Phase 8 boundary; the original eight phases are done.
 
 ## Verification (all passing)
 
@@ -12,14 +12,25 @@ _Last updated: 2026-09-30 (Phase 7 complete; payments still on the test provider
 | --- | --- |
 | `npm run lint` | ✅ 0 problems |
 | `npm run typecheck` | ✅ strict, 0 errors (types generated from the live schema) |
-| `npm test` | ✅ 125 unit tests — adds AI redaction, JSON extraction, prompt fencing and the Anthropic adapter (mocked fetch) |
-| `npm run test:db` | ✅ 14 migrations apply cleanly on PostgreSQL 16; 594 RLS/workflow assertions (… + 35 for Phase 7) |
+| `npm test` | ✅ 130 unit tests (adds AI helpers, rate limiter) |
+| `npm run test:db` | ✅ 16 migrations apply cleanly on PostgreSQL 16; 616 RLS/workflow assertions (… + 22 Phase 8 audit) |
+| `npm run test:concurrency` | ✅ 21 assertions, parallel connections: stock confirmation, double escrow release, duplicate webhooks, same-version transitions, AI quota |
 | `npm run build` | ✅ production build (Next 16.3, Turbopack) |
 | Live Supabase | ✅ all 13 migrations applied (39 Phase 6 function bodies verified identical to local); live smoke test (rolled back) placed an order, confirmed it, issued the invoice and reserved stock; advisors show only the documented intentional warnings + leaked-password protection |
 | Live site | ✅ https://gbana-b2-b.vercel.app — auto-deploys from `main` |
 | Visual check | ✅ Phase 7: all assistant forms and not-connected/switched-off states at 1366px and 390px (harness removed). Phase 6: delivery code card, carrier job controls (pickup/in transit/arrived), dispute page with admin decision form, reviews and trust summary at 1366px and 390px (sample-data harness, removed). Earlier: order page (buyer + seller), cart, checkout, order list, add-to-cart and invoice reviewed at 1366px and 390px (sample-data harness, removed); fixed a phone-width overflow on two-column pages |
 
 ## Completed
+
+### Phase 8 — Production hardening
+- **RLS/privilege audit:** structural checks run locally (`80_phase8_audit.sql`) and on the live project. Fixed: public and signed-in readers could read every column of active `businesses` rows (admin verification note, owner id, address, phones, registration number) — now column-level grants (ADR 0018).
+- **Concurrency:** `scripts/test-concurrency.sh`. Found and fixed an AI-quota race (8 of 20 simultaneous requests passed a limit of 6). Confirmed: one order gets the last stock, one escrow release, one webhook applied, one order transition per version.
+- **Security headers and limits:** production CSP; webhook rate limits (per caller, bad signatures); health check rate limit; `x-request-id` on responses.
+- **Monitoring:** `/api/health` (liveness) and `?deep=1` (database readiness); admin overview shows scheduled-jobs and AI status; runbook with log events to search.
+- **Accessibility (scripted, public pages):** axe-core WCAG A/AA at 1366 and 390 — fixed footer/sign-in contrast and missing page heading on not-found pages; now zero violations. `scripts/a11y-audit.py`.
+- **3G check:** `scripts/perf-3g.py` — pages transfer 205–280 KB; first paint ~0.8 s on Fast 3G and ~2.3 s on Slow 3G; largest paint ≤ 4.3 s on Slow 3G.
+- **Database performance:** advisor reports no unindexed foreign keys; the 67 "unused index" notices are expected with no traffic and were left alone.
+- Docs: `docs/operations/runbook.md`, `docs/operations/launch-checklist.md`, security audit summary, ADR 0018.
 
 ### Phase 7 — AI assistants
 - **Buyer** `/buyer/assistant`: describe a need → the AI proposes ≤4 search phrases and quantity/MOQ notes; the server then searches the real catalogue, so products are never invented.
@@ -139,6 +150,14 @@ App shell, design system (`/design-system`), PWA, env architecture, phone OTP au
 - A quota unit is used even if the model call then fails (the database takes it first).
 - The dispute summary cannot see photos or videos, only the text.
 
-## Next phase — Phase 8: Production hardening
+## Known limits (Phase 8)
 
-Webhook rate limiting, accessibility and 3G testing, security review, observability and launch checklist.
+- Accessibility was scanned on public pages only; signed-in screens still need a manual pass (script supports it with a saved session).
+- 3G numbers are from a local production build with emulated throttling, not a real phone in Liberia.
+- In-app rate limits are per server instance; add Vercel Firewall rules for a global limit (runbook).
+- CSP keeps `script-src 'unsafe-inline'` for Next.js bootstrap scripts; nonces are a later improvement.
+- No third-party penetration test yet. Payment failure paths are tested against the test provider only.
+
+## Next
+
+Owner actions in `docs/operations/launch-checklist.md`, then a pilot. After that: Phase 9 services marketplace (see recommendation), real provider adapters once MTN/Orange documentation arrives.

@@ -36,9 +36,9 @@ export function SiteFooter() {
         />
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-trade-400 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-trade-300 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} GbanaB2B. Monrovia, Liberia.</p>
-          <p className="label-caps !text-[0.625rem] text-trade-400">USD · LRD · Mobile Money</p>
+          <p className="label-caps !text-[0.625rem] text-trade-300">USD · LRD · Mobile Money</p>
         </div>
       </div>
     </footer>
@@ -48,7 +48,7 @@ export function SiteFooter() {
 function FooterCol({ title, links }: { title: string; links: { href: string; label: string }[] }) {
   return (
     <div>
-      <p className="label-caps text-trade-400">{title}</p>
+      <p className="label-caps text-trade-300">{title}</p>
       <ul className="mt-3 space-y-2">
         {links.map((l) => (
           <li key={l.href}>

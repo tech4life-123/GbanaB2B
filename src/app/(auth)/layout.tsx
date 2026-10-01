@@ -31,7 +31,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </li>
           </ul>
         </div>
-        <p className="relative label-caps text-trade-400">Monrovia · Liberia</p>
+        <p className="relative label-caps text-trade-300">Monrovia · Liberia</p>
       </aside>
 
       <div className="flex flex-col">

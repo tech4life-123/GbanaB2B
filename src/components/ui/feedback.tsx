@@ -12,6 +12,7 @@ export function EmptyState({
   action,
   className,
   compact,
+  headingLevel = 3,
 }: {
   icon?: ReactNode;
   title: ReactNode;
@@ -19,7 +20,10 @@ export function EmptyState({
   action?: ReactNode;
   className?: string;
   compact?: boolean;
+  /** Use 1 when this is the whole page (e.g. not-found), so the page still has a top-level heading. */
+  headingLevel?: 1 | 2 | 3;
 }) {
+  const Heading = `h${headingLevel}` as const;
   return (
     <div
       className={cn(
@@ -33,7 +37,7 @@ export function EmptyState({
           {icon}
         </div>
       )}
-      <h3 className="text-base font-bold text-trade-900">{title}</h3>
+      <Heading className="text-base font-bold text-trade-900">{title}</Heading>
       {children && <div className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted">{children}</div>}
       {action && <div className="mt-5">{action}</div>}
     </div>

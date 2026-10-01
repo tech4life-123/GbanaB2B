@@ -55,6 +55,10 @@ Security is a product requirement. This document is the threat model and the con
 | AI taking a sensitive action | The model has no tools and no write access. It can only return text; approve/release/refund/verify/decide paths don't reference it. Products shown are real catalogue rows found by search; categories are checked against the real list | ✅ by design + tested |
 | Personal data sent to the model | Phones, emails and codes are redacted; admin briefing uses a database function that returns aggregates only; dispute summary sends the thread text (redacted), no evidence files | ✅ tested |
 | AI cost abuse | Switched off by default; per-person per-minute and per-day quotas taken in the database (`ai_take_quota`) before any model call; role-checked there too; input length capped | ✅ tested |
+| Private business data read by anyone | Column-level grants: the public sees only what marketplace pages render; signed-in users never see the admin's internal note | ✅ tested (live + local) |
+| Parallel requests beating a limit | Per-user advisory lock in `ai_take_quota`; row locks and unique keys elsewhere; `npm run test:concurrency` | ✅ tested |
+| Webhook flooding / probing | Per-caller rate limit and bad-signature limit before database work; signature check; body size cap; Vercel Firewall rule recommended | ✅ unit tested |
+| Browser-side injection and framing | Production CSP, `frame-ancestors 'none'`, HSTS, nosniff | ✅ checked in a production build |
 | Document exposure | Private storage buckets; signed URLs for admins only (listing photos are deliberately public — ADR 0008) | 🔜 Phase 4 |
 
 ## Temporary access (pre-launch)
